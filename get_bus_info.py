@@ -1,23 +1,23 @@
 
 from __future__ import print_function
 import json
-import urllib
+from urllib.request import urlopen
 import sys
-import csv
 
 import os
 from dotenv import load_dotenv
 
 
 load_dotenv()
-
+print(len(sys.argv))
 if not len(sys.argv) == 3:
     print("Invalid number of arguments. Run as: python  get_bus_info.py <BUS_LINE> <BUS_LINE>.csv")
     sys.exit()
 
 # Defining URL to obtain the information from MTA API
-url = "http://bustime.mta.info/api/siri/vehicle-monitoring.json?key=" + os.getenv("API_KEY")  + "&VehicleMonitoringDetailLevel=calls&LineRef=" + sys.argv[2]
-response = urllib.urlopen(url)
+url = "http://bustime.mta.info/api/siri/vehicle-monitoring.json?key=" + os.getenv("API_KEY")  + "&VehicleMonitoringDetailLevel=calls&LineRef=" + sys.argv[1]
+
+response = urlopen(url)
 #Reading the response from the Site and Decoding it to UTF-8 Format
 data = response.read().decode("utf-8")
 #Converting the File to JSON Format
@@ -28,7 +28,7 @@ No_buses = len(data['Siri']['ServiceDelivery']['VehicleMonitoringDelivery'][0]['
 
 #Opening the CSV File in Write Mode and writing the details from JSON 
 
-fout = open(sys.argv[3], "w")
+fout = open(sys.argv[2], "w")
 fout.write("Latitude,Longitude,Stop Name,Stop Status\n")
 
 for n in (range(0, No_buses)):

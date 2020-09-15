@@ -1,8 +1,7 @@
 # Program to track each vehicle of a particular line
 from __future__ import print_function
-import pylab as pl
 import json
-import urllib
+from urllib.request import urlopen
 import sys
 
 
@@ -13,7 +12,7 @@ if not len(sys.argv) == 3:
 
 # Defining URL to obtain the information from MTA API
 url = "http://bustime.mta.info/api/siri/vehicle-monitoring.json?key=" + sys.argv[1]  + "&VehicleMonitoringDetailLevel=calls&LineRef=" + sys.argv[2]
-response = urllib.urlopen(url)
+response = urlopen(url)
 #Reading the response from the Site and Decoding it to UTF-8 Format
 data = response.read().decode("utf-8")
 #Converting the File to JSON Format
