@@ -1,10 +1,12 @@
+From original forked project:
+
 MTA Bus Tracker
 
 In this project we stream real-time bus data from MTA through the MTA Bus Time interface. 
 
-In order to access the MTA data, an MTA AOI Key is required, that can be requested from MTA from the [MTA Developers Tools](http://bustime.mta.info/wiki/Developers/Index).
+In order to access the MTA data, an MTA API Key is required, that can be requested from MTA from the [MTA Developers Tools](http://bustime.mta.info/wiki/Developers/Index).
 
-MTA uses  SIRI (Service Interface for Real Time Information) API to serve their data in both XML and JSON format. Here in this case we use the JSON format as it is increasing popularity in data access API over the web, and because it is a very natural format in Python, since it maps identically to a Python dictionary. 
+MTA uses SIRI (Service Interface for Real Time Information) API to serve their data in both XML and JSON format. Here in this case we use the JSON format as it is increasing popularity in data access API over the web, and because it is a very natural format in Python, since it maps identically to a Python dictionary. 
 
 Information on the vehicle monitoring stream is available [here](http://bustime.mta.info/wiki/Developers/SIRIVehicleMonitoring).
 
@@ -14,11 +16,9 @@ It is also to be noted that the BusTime API server strictly enforces users to is
 shorter periods.
 
 
-
-
 is focussed on obtaining data from MTA pertaining to the Bus Schedules and real time monitoringis further is subdivided into two different Parts:
 
-1. Tracking vehicle for each line
+1. **Tracking vehicle for each line**
 
     This Program takes in the input of the MTA API Key and the Bus route number to provide the Number of Active Buses Plying and real time location coordinates (Lattitude & Longitude of the bus).
     
@@ -33,11 +33,10 @@ is focussed on obtaining data from MTA pertaining to the Bus Schedules and real 
         Bus 2 is at latitude 40.688363 and longitude -73.979563
         Bus 3 is at latitude 40.688282 and longitude -73.979356
         Bus 4 is at latitude 40.686839 and longitude -73.964694
-        
-        
-2. Tracking the Status of the Buses in Line
+      
+2. **Tracking the Status of the Buses in Line**
 
-This program takes in the Input of MTA API Key, the Bus route number and the name of CSV file to write the details of next stop location and the current bus status.For example, whether the bus is approaching a stop, or is 1 stop away from it. It also handles exception (LookupError) wherein if the stop name and status is unknown it does not stop the loop rather returns"N/A" value.
+    This program takes in the Input of MTA API Key, the Bus route number and the name of CSV file to write the details of next stop location and the current bus status.For example, whether the bus is approaching a stop, or is 1 stop away from it. It also handles exception (LookupError) wherein if the stop name and status is unknown it does not stop the loop rather returns"N/A" value.
     
     On Executing the File python get_bus_info.py <MTA_KEY> <BUS_LINE> <BUS_LINE>.csv
     
