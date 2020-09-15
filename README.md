@@ -1,5 +1,10 @@
 todo:
-- urllib error (python2?)
+1. get list of routes to watch (or API to list them?)
+2. streamline these grabbers into one script
+3. database connection (sqlite w/ SQLalchemyORM for now?)
+4. map explorer
+    - dash/plotly
+    - kepler?
 
 install:
 - clone the repo
