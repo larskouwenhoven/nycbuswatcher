@@ -4,14 +4,18 @@ import json
 from urllib.request import urlopen
 import sys
 
+# load API KEY from .env (dont commit this file to the repo)
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 
-if not len(sys.argv) == 3:
-    print("The Program has not been executed - Invalid number of arguments. Run as: python show_bus_locations.py <MTA_KEY> <BUS_LINE>")
+if not len(sys.argv) == 2:
+    print("The Program has not been executed - Invalid number of arguments. Run as: python show_bus_locations.py <BUS_LINE>")
     sys.exit()
 
 # Defining URL to obtain the information from MTA API
-url = "http://bustime.mta.info/api/siri/vehicle-monitoring.json?key=" + sys.argv[1]  + "&VehicleMonitoringDetailLevel=calls&LineRef=" + sys.argv[2]
+url = "http://bustime.mta.info/api/siri/vehicle-monitoring.json?key=" + os.getenv("API_KEY")  + "&VehicleMonitoringDetailLevel=calls&LineRef=" + sys.argv[1]
 response = urlopen(url)
 #Reading the response from the Site and Decoding it to UTF-8 Format
 data = response.read().decode("utf-8")
@@ -22,7 +26,7 @@ data = json.loads(data)
 No_buses = len(data['Siri']['ServiceDelivery']['VehicleMonitoringDelivery'][0]['VehicleActivity'])
 
 
-print ("Bus Line:" + sys.argv[2])
+print ("Bus Line:" + sys.argv[1])
 
 print ("No. of Buses that are currently Active:%s"%(No_buses))
 

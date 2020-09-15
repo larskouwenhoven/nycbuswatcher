@@ -4,12 +4,12 @@ import json
 from urllib.request import urlopen
 import sys
 
+# load API KEY from .env (dont commit this file to the repo)
 import os
 from dotenv import load_dotenv
-
-
 load_dotenv()
-print(len(sys.argv))
+
+
 if not len(sys.argv) == 3:
     print("Invalid number of arguments. Run as: python  get_bus_info.py <BUS_LINE> <BUS_LINE>.csv")
     sys.exit()
