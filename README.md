@@ -1,4 +1,5 @@
 todo:
+0. find/create a data dictionary for the responses
 1. get list of routes to watch (or API to list them?)
 2. streamline these grabbers into one script
 3. database connection (sqlite w/ SQLalchemyORM for now?)
