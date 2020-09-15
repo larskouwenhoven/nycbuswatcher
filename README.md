@@ -1,3 +1,12 @@
+todo:
+- urllib error (python2?)
+
+install:
+- clone the repo
+- obtain an API key from http://bustime.mta.info/wiki/Developers/Index/ and put it in .env
+
+-----
+
 From original forked project:
 
 MTA Bus Tracker
