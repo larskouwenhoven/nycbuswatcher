@@ -18,6 +18,7 @@ python grabber.py -r all
     - build off code in test scripts
     - parse records for each vehicle with key fields TBD (lat, lon, route, timestamp....) from [MonitoredVehicleJourney](http://bustime.mta.info/wiki/Developers/SIRIMonitoredVehicleJourney)
     - add ability to (batch) process archiver feeds (e.g. this should be able to take a urllib repsonse, or file(s) or query results from the archive)
+    - http://bustime.mta.info/wiki/Developers/SIRIMonitoredVehicleJourney
 2. database logger
     - define an ORM class for MonitoredVehicleJourney observations
 3. feed archiver
