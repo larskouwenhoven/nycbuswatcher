@@ -4,7 +4,7 @@ from urllib.request import urlopen
 import argparse
 
 import Database as db
-import Parser as ps
+
 
 # load API KEY from .env (dont commit this file to the repo)
 from dotenv import load_dotenv
@@ -31,7 +31,7 @@ def get_feed(route):
     if args.debug == True:
         db.dump_to_screen(data,route)
     db.dump_to_json(data, route)
-    # db.dump_to_table(data,route) #todo call ps.parse_buses
+    db.dump_to_table(data,route) #todo call ps.parse_buses
 
     return data
 
@@ -48,6 +48,6 @@ if __name__ == "__main__":
     num_buses = len(data['Siri']['ServiceDelivery']['VehicleMonitoringDelivery'][0]['VehicleActivity'])
     print ('grabber found {} on route(s) {}.'.format(num_buses,args.route))
 
-    ps.parse_buses(data)
+
 
 
