@@ -14,8 +14,20 @@ python grabber.py -r all
 ```
 
 ##### todo
-2. write parser for bus feed fetcher
-3. database connection ([sqlite w/ SQLalchemyORM for now?](https://medium.com/@mahmudahsan/how-to-use-python-sqlite3-using-sqlalchemy-158f9c54eb32))
+2. feed logger
+    - log entire raw JSON of each API response (for later auditing), 
+    - options
+        - .json text files, optionally compressed into daily bundles
+        - log JSON responses to a SQLite database [tutorial](https://devopsheaven.com/sqlite/databases/json/python/api/2017/10/11/sqlite-json-data-python.html), need to be aware how big this gets
+3. feed parser
+    - build off code in test scripts
+    - parse records for each vehicle with key fields TBD (lat, lon, route, timestamp....) from [MonitoredVehicleJourney](http://bustime.mta.info/wiki/Developers/SIRIMonitoredVehicleJourney)
+    - add ability to (batch) process a file or group of files (e.g. from the feed logger), or grab records from the sqlite database
+3. database 
+    - define an ORM class for MonitoredVehicleJourney observations
+    - write 
+
+connection ([sqlite w/ SQLalchemyORM for now?](https://medium.com/@mahmudahsan/how-to-use-python-sqlite3-using-sqlalchemy-158f9c54eb32))
 4. dockerize deployment
 
 
