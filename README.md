@@ -13,6 +13,7 @@ python grabber.py -r M1
 python grabber.py -r all
 ```
 
+#####todo
 1. debug routelist grabber
 2. write parser for bus feed fetcher
 3. database connection ([sqlite w/ SQLalchemyORM for now?](https://medium.com/@mahmudahsan/how-to-use-python-sqlite3-using-sqlalchemy-158f9c54eb32))
@@ -20,6 +21,8 @@ python grabber.py -r all
 
 
 ### dashboard.py (future)
+
+#####todo
 1. parse the GTFS for the routes http://bustime.mta.info/wiki/Developers/SIRIIntro
 2. view and query data on a map
     - dash/plotly
