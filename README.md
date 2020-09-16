@@ -14,7 +14,6 @@ python grabber.py -r all
 ```
 
 ##### todo
-1. debug routelist grabber
 2. write parser for bus feed fetcher
 3. database connection ([sqlite w/ SQLalchemyORM for now?](https://medium.com/@mahmudahsan/how-to-use-python-sqlite3-using-sqlalchemy-158f9c54eb32))
 4. dockerize deployment
