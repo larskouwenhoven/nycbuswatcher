@@ -1,8 +1,11 @@
-todo:
-0. find/create a data dictionary for the responses
-1. get list of routes to watch (or API to list them?)
-2. streamline these grabbers into one script
-3. database connection (sqlite w/ SQLalchemyORM for now?)
+## todo:
+
+1. split work into two streams...
+
+
+
+viewer
+1. parse the GTFS for the routes http://bustime.mta.info/wiki/Developers/SIRIIntro
 4. map explorer
     - dash/plotly
     - kepler?
@@ -11,11 +14,36 @@ install:
 - clone the repo
 - obtain an API key from http://bustime.mta.info/wiki/Developers/Index/ and put it in .env
 
+
 -----
 
-From original forked project:
+## grabber.py
 
-MTA Bus Tracker
+
+```python
+python grabber.py -r M1
+python grabber.py -r all
+
+```
+grabber
+0. find/create a data dictionary for the responses
+1. get list of routes to watch from the OpenBusAway RESTful API
+    -http://bustime.mta.info/api/where/routes-for-agency/MTA%20NYCT.xml?key=os.getenv("API_KEY")
+2. streamline these grabbers into one script
+3. database connection (sqlite w/ SQLalchemyORM for now?)
+4. dockerize deployment
+
+
+
+
+
+
+
+
+
+
+
+## testfeed_ scripts from original forked project:
 
 In this project we stream real-time bus data from MTA through the MTA Bus Time interface. 
 
