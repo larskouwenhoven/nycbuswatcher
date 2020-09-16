@@ -22,6 +22,12 @@ response = urlopen(url)
 data = response.read().decode("utf-8")
 #Converting the File to JSON Format
 data = json.loads(data)
+
+# dump the data to a file
+with open('testfeed_bus_info.json', 'w') as outfile:
+    json.dump(data, outfile)
+
+
 #This variable stores the value of the No. of Buses by 
 
 No_buses = len(data['Siri']['ServiceDelivery']['VehicleMonitoringDelivery'][0]['VehicleActivity'])
