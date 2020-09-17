@@ -2,6 +2,10 @@
 
 1. clone the repo
 2. obtain an API key from http://bustime.mta.info/wiki/Developers/Index/ and put it in .env
+```
+# .env example
+API_KEY = fasjhfasfajskjrwer242jk424242
+```
 
 ## use
 
