@@ -1,0 +1,40 @@
+version: '3'
+
+# from https://www.dabbleofdevops.com/blog/setup-a-mysql-python-docker-dev-stack
+
+# Run as
+# docker-compose build; docker-compose up -d
+# Check with
+# docker ps
+# Then check the logs with
+# docker logs --tail 50 $service_name
+# docker-compose images
+# docker-compose logs --tail 20 $service_name
+
+services:
+
+  mysql_db:
+    image: mysql:5.7
+    environment:   # Set up mysql database name and password
+      MYSQL_ROOT_PASSWORD: bustime
+      MYSQL_DATABASE: buses
+      MYSQL_USER: nycbuswatcher
+      MYSQL_PASSWORD: bustime
+    networks:
+      - app-tier
+
+  python_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - mysql_db
+    networks:
+      - app-tier
+    command:
+      /opt/conda/envs/nycbuswatcher/bin/python3 /grabber.py
+
+
+networks:
+  app-tier:
+    driver: bridge

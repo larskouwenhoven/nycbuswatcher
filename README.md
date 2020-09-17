@@ -2,10 +2,20 @@
 
 1. clone the repo
 2. obtain an API key from http://bustime.mta.info/wiki/Developers/Index/ and put it in .env
-```
-# .env example
-API_KEY = fasjhfasfajskjrwer242jk424242
-```
+    ```
+    # .env example
+    API_KEY = fasjhfasfajskjrwer242jk424242
+    ```
+3. mysql setup (optional)
+    ```sql
+    CREATE DATABASE buses;
+    USE buses;
+    CREATE USER 'nycbuswatcher'@'localhost' IDENTIFIED BY 'bustime';
+    GRANT ALL PRIVILEGES ON * . * TO 'nycbuswatcher'@'localhost';
+    FLUSH PRIVILEGES;
+ 
+    ```
+
 
 ## use
 
