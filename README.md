@@ -14,25 +14,16 @@ API_KEY = fasjhfasfajskjrwer242jk424242
 
 ```python
 python grabber.py -r M1
-python grabber.py -r all
+python grabber.py -r ALL
 ```
 
-##### todo
-1. feed parser
-    - build off code in test scripts
-    - parse records for each vehicle with key fields TBD (lat, lon, route, timestamp....) from [MonitoredVehicleJourney](http://bustime.mta.info/wiki/Developers/SIRIMonitoredVehicleJourney)
-    - add ability to (batch) process archiver feeds (e.g. this should be able to take a urllib repsonse, or file(s) or query results from the archive)
-    - http://bustime.mta.info/wiki/Developers/SIRIMonitoredVehicleJourney
-2. database logger
-    - define an ORM class for MonitoredVehicleJourney observations
-3. feed archiver
-    - stores entire raw JSON of each API response for later re-processing
-    - option A: dump as json text files
-    - option B: store in a sqlite as JSON type [tutorial](https://devopsheaven.com/sqlite/databases/json/python/api/2017/10/11/sqlite-json-data-python.html) (need to be aware how big this file gets)
-
-connection ([sqlite w/ SQLalchemyORM for now?](https://medium.com/@mahmudahsan/how-to-use-python-sqlite3-using-sqlalchemy-158f9c54eb32))
-4. dockerize deployment
-
+##### todo (descending importance)
+2. replace / add mysql instead of sqlite
+3. dockerize deployment
+4. add parsing for the MonitoredCall portion of API response for each bus (currently discarded)
+5. db optimization to reduce size
+6. db optimization improve query performance
+1. add ability to (batch) re-process archived files 
 
 ### dashboard.py (future)
 
