@@ -15,8 +15,10 @@ dependencies:
   - libprotobuf=3.13.0
   - lz4-c=1.9.2
   - mysql-common=8.0.21
+  - mysql-connector-c=6.1.11
   - mysql-connector-python=8.0.21
   - mysql-libs=8.0.21
+  - mysqlclient=2.0.1
   - ncurses=6.2
   - openssl=1.1.1g
   - pip=20.2.3
@@ -35,5 +37,7 @@ dependencies:
   - xz=5.2.5
   - zlib=1.2.11
   - zstd=1.4.5
+  - pip:
+    - sqlalchemy-stubs==0.3
 prefix: /opt/bin/anaconda3/envs/nycbuswatcher
 
