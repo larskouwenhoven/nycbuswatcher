@@ -5,6 +5,7 @@ import argparse
 import os
 import json
 import datetime
+import requests
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -32,14 +33,16 @@ MYSQL_PASSWORD='bustime'
 
 
 
-def get_feed(route, output):
+def get_feed(route, output,interval):
     # fetch and prep feed
     # API reference http://bustime.mta.info/wiki/Developers/SIRIVehicleMonitoring
 
     if route == "ALL":
         url = "http://bustime.mta.info/api/siri/vehicle-monitoring.json?key=" + os.getenv(
             "API_KEY") + "&VehicleMonitoringDetailLevel=calls"
-        response = urlopen(url, timeout=120)
+        # response = urlopen(url, timeout=120)
+        response = requests.get(url, timeout=interval)
+
         data = response.read().decode("utf-8")
         data = json.loads(data)
 
@@ -56,7 +59,9 @@ def get_feed(route, output):
     elif output in ['sqlite','mysql']:
         dump_to_db(data, route, output)
 
-    return data
+    # todo log response.elapsed somewhere to throttle the interval for future jobs (touch a file somewhere with a running average and most recent time?)
+
+    return
 
 
 
@@ -74,7 +79,7 @@ def dump_to_file(data, route):
     else:
         # print(path, "folder already exists.")
         pass
-    date = datetime.datetime.now().strftime("%Y-%m-%dT_%H:%M:%S.%f")
+    date = datetime.now().strftime("%Y-%m-%dT_%H:%M:%S.%f")
     dumpfile=(path + route + '_' + date +'.json')
     with open(dumpfile, 'w') as json_file:
         json.dump(data, json_file)
@@ -165,22 +170,26 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='NYCbuswatcher grabber, fetches and stores current position for buses')
     parser.add_argument('-r', action="store", dest="route") # a single route M1 or ALL
-    parser.add_argument('-o', action="store", dest="output", default="screen") # output file, sqlite, mysql, screen
-    parser.add_argument('-p', action="store_true", dest="production")  # output file, db, screen # todo makes it loop? or should that be done externally?
+    parser.add_argument('-o', action="store", dest="output", default="screen") # screen, file, sqlite, mysql
+    parser.add_argument('-p', action="store_true", dest="production")
     args = parser.parse_args()
 
     if args.production is True:
         route = 'ALL'
         output = 'mysql'
+        interval = 180 #todo read this from the dynamically calculated time?
     else:
         route=args.route
         output=args.output
+        interval = 60
+        if route == 'ALL':
+            interval = 300
 
 
     scheduler = BackgroundScheduler()
-    scheduler.add_job(get_feed, 'interval', seconds=60,args=[route, output]) #todo move interval to .env
+    scheduler.add_job(get_feed, 'interval', seconds=interval,args=[route, output,interval])
     scheduler.start()
-    print('Scanning on 60-second interval. Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
+    print('Scanning on {}-second interval. Press Ctrl+{} to exit'.format(interval,('Break' if os.name == 'nt' else 'C')))
 
     try:
         # This is here to simulate application activity (which keeps the main thread alive).
