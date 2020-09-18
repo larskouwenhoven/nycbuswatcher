@@ -29,6 +29,8 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - mysql_db
+    volumes:
+      - bus_data:/app/data
     networks:
       - app-tier
     command:
@@ -40,3 +42,6 @@ services:
 networks:
   app-tier:
     driver: bridge
+
+volumes:
+  bus_data:
