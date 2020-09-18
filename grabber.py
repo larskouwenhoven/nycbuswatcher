@@ -6,15 +6,23 @@ import os
 import json
 import datetime
 
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+
+from datetime import datetime
+import time
+import os
+
+from apscheduler.schedulers.background import BackgroundScheduler
+
 
 from Database import BusObservation
 
 # load API KEY from .env (dont commit this file to the repo)
 from dotenv import load_dotenv
 load_dotenv()
+
 
 # database settings
 MYSQL_DB='buses'
@@ -25,7 +33,6 @@ MYSQL_PASSWORD='bustime'
 
 
 def get_feed(route, output):
-
     # fetch and prep feed
     # API reference http://bustime.mta.info/wiki/Developers/SIRIVehicleMonitoring
 
@@ -137,25 +144,20 @@ def parse_buses(route,data,db_url):
                 if len(v) > 1:
                     val = b['MonitoredVehicleJourney'][v[0]][v[1]]
                     setattr(bus, k, val)
-                    print(k,val)
+                    # print(k,val)
                 else:
                     val = b['MonitoredVehicleJourney'][v[0]]
                     setattr(bus, k, val)
-                    print(k, val)
+                    # print(k, val)
             except LookupError:
                 pass
             except Exception as e:
                 print (e)
                 pass
 
-
-        # result = ("{}\t{}\t{}\t{}").format(route,bus.vehicle_id,bus.trip_id,bus.progress_rate,bus.destination_name,bus.lat,bus.lon)
-        # print(result)
-
         buses.append(bus)
 
-    return buses # return a list of BusObservation objects
-
+    return buses
 
 
 
@@ -175,10 +177,18 @@ if __name__ == "__main__":
         output=args.output
 
 
-    data = get_feed(route, output)
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(get_feed, 'interval', seconds=60,args=[route, output]) #todo move interval to .env
+    scheduler.start()
+    print('Scanning on 60-second interval. Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
 
-    print ('grabber found {} buses on route(s) {}.'.format(len(data['Siri']['ServiceDelivery']['VehicleMonitoringDelivery'][0]['VehicleActivity']),args.route))
-
+    try:
+        # This is here to simulate application activity (which keeps the main thread alive).
+        while True:
+            time.sleep(2)
+    except (KeyboardInterrupt, SystemExit):
+        # Not strictly necessary if daemonic mode is enabled but should be done if possible
+        scheduler.shutdown()
 
 
 
