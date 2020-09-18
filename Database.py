@@ -1,4 +1,3 @@
-# from sqlalchemy import *
 from sqlalchemy import Column, Date, DateTime, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
