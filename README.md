@@ -1,4 +1,4 @@
-## install
+# install
 
 1. clone the repo
 2. obtain an API key from http://bustime.mta.info/wiki/Developers/Index/ and put it in .env
@@ -17,7 +17,7 @@
     ```
 
 
-## use
+# use
 
 ### grabber.py
 
@@ -28,53 +28,40 @@ python grabber.py -r ALL
 ```
 
 ##### todo (descending importance)
-2. replace / add mysql instead of sqlite
-3. dockerize deployment
-4. add parsing for the MonitoredCall portion of API response for each bus (currently discarded)
+1. add parsing for the MonitoredCall portion of API response for each bus (currently discarded)
 5. db optimization to reduce size
 6. db optimization improve query performance
 1. add ability to (batch) re-process archived files 
 
-### dashboard.py (future)
 
-##### todo
-1. parse the GTFS for the routes http://bustime.mta.info/wiki/Developers/SIRIIntro
-2. view and query data on a map
-    - dash/plotly
-    - kepler?
+# development
 
 
-### testfeed_get_bus_info.py
+### additional data scrapers
 
-Forked from [https://github.com/praveenashokkumar/MTA_Bus_Tracker](https://github.com/praveenashokkumar/MTA_Bus_Tracker). See there for docs.
-
-```python
-python testfeed_get_bus_info.py M1 M1.csv
-
-      Bus Line : B52
-        Number of Active Buses : 5
-        Bus 0 is at latitude 40.687241 and longitude -73.941661
-        Bus 1 is at latitude 40.690822 and longitude -73.920759
-        Bus 2 is at latitude 40.688363 and longitude -73.979563
-        Bus 3 is at latitude 40.688282 and longitude -73.979356
-        Bus 4 is at latitude 40.686839 and longitude -73.964694
-```
+1. stop monitoring—[SIRIStopMonitoring](http://bustime.mta.info/wiki/Developers/SIRIStopMonitoring) reports info on individual stops, 1 at a time only.
+2. route geometry from [OneBusAway API](http://bustime.mta.info/wiki/Developers/OneBusAwayRESTfulAPI) (much easier than working with the GTFS) on:
+- The list of routes covered by MTA Bus Time
+- Full information about each stop covered by MTA Bus Time (e.g. the lat/lon coordinates, stop name, list of routes serving that stop)
+- The stops served by a given route
+- The physical geometry for a given route (for mapping and geographic calculations)
+- The schedule of trips serving a given stop or route (repeat: schedule, having nothing to do with the real-time data)
+- The stops or routes near a given location
 
 
-### testfeed_show_bus_locations.py
 
-Forked from [https://github.com/praveenashokkumar/MTA_Bus_Tracker](https://github.com/praveenashokkumar/MTA_Bus_Tracker). See there for docs.
+### internal api
 
-```python
-python testfeed_show_bus_locations.py M1
+Deploy an api using flask or FastAPI to expose database for our own dashboard and applications.
 
-        Latitude,Longitude,Stop Name,Stop Status
-          40.755489,-73.987347,7 AV/W 41 ST,at stop
-          40.775657,-73.982036,BROADWAY/W 69 ST,approaching
-          40.808332,-73.944979,MALCOLM X BL/W 127 ST,approaching
-          40.764998,-73.980416,N/A,N/A
-          40.804702,-73.947620,MALCOLM X BL/W 122 ST,< 1 stop away
-          40.776950,-73.981983,AMSTERDAM AV/W 72 ST,< 1 stop away
-          40.737650,-73.996626,AV OF THE AMERICAS/W 18 ST,< 1 stop away
-```
+### dashboard
+
+build off:
+- OneBusAway API (geometry, don't store it)
+- our internal API for historical bus location / arrival data
+
+platform?
+- kepler.gs
+- dash/plotly
+
 

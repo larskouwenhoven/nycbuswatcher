@@ -40,11 +40,13 @@ def get_feed(route, output,interval):
     if route == "ALL":
         url = "http://bustime.mta.info/api/siri/vehicle-monitoring.json?key=" + os.getenv(
             "API_KEY") + "&VehicleMonitoringDetailLevel=calls"
-        # response = urlopen(url, timeout=120)
-        response = requests.get(url, timeout=interval)
 
-        data = response.read().decode("utf-8")
-        data = json.loads(data)
+        response = requests.get(url, timeout=interval)
+        data = response.json()
+
+        # response = urlopen(url, timeout=120)
+        # data = response.read().decode("utf-8")
+        # data = json.loads(data)
 
     else:
         url = "http://bustime.mta.info/api/siri/vehicle-monitoring.json?key=" + os.getenv("API_KEY") + "&VehicleMonitoringDetailLevel=calls&LineRef=" + route
