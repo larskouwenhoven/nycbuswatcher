@@ -32,7 +32,9 @@ python grabber.py -r ALL
 5. db optimization to reduce size
 6. db optimization improve query performance
 1. add ability to (batch) re-process archived files 
-
+5. if all buses API proves unreliable, write two new loops:
+    - one to update a list of routes to scan, from the OBA API every 15 mins
+    - second to loop the get_feed over that list, multi-threaded/async
 
 # development
 

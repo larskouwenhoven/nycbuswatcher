@@ -25,14 +25,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-# database settings
-MYSQL_DB='buses'
-MSQL_HOST='127.0.0.1'
-MYSQL_USER='nycbuswatcher'
-MYSQL_PASSWORD='bustime'
-
-
-
 def get_feed(route, output,interval):
     # fetch and prep feed
     # API reference http://bustime.mta.info/wiki/Developers/SIRIVehicleMonitoring
@@ -95,7 +87,7 @@ def dump_to_db(data, route, output):
     session.commit()
     return
 
-def get_session(output):
+def get_session(output,):
     db_url=get_db_url(output)
     engine = create_engine(db_url, echo=True)
     Session = sessionmaker(bind=engine)
@@ -104,7 +96,7 @@ def get_session(output):
 
 def get_db_url(output):
     if output == 'mysql':
-        db_url = 'mysql://{}:{}@{}/{}'.format(MYSQL_USER,MYSQL_PASSWORD,MSQL_HOST,MYSQL_DB)
+        db_url = 'mysql://{}:{}@{}/{}'.format(dbparams['dbuser'],dbparams['dbpassword'],'localhost',dbparams['dbname']) # todo test if production or not
     elif output == 'sqlite':
         db_url='sqlite:///data/buses.db'
     return db_url
@@ -176,16 +168,26 @@ if __name__ == "__main__":
     parser.add_argument('-p', action="store_true", dest="production")
     args = parser.parse_args()
 
+    # database settings
+
+    dbparams={
+        'dbname':'buses',
+        'dbuser':'nycbuswatcher',
+        'dbpassword':'bustime'
+    }
+
+
     if args.production is True:
-        route = 'ALL'
+        route = 'M1' # for testing, normally # route = 'ALL'
         output = 'mysql'
-        interval = 180 #todo read this from the dynamically calculated time?
+
     else:
         route=args.route
         output=args.output
-        interval = 60
-        if route == 'ALL':
-            interval = 300
+
+    interval = 60
+    if route == 'ALL':
+        interval = 180 #todo read this from the dynamically calculated time?
 
 
     scheduler = BackgroundScheduler()

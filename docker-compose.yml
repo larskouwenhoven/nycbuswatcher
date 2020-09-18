@@ -13,35 +13,31 @@ version: '3'
 
 services:
 
-  mysql_db:
+  mysql:
     image: mysql:5.7
+    #ports:
+    #  - 3306
     environment:   # Set up mysql database name and password
       MYSQL_ROOT_PASSWORD: bustime
       MYSQL_DATABASE: buses
       MYSQL_USER: nycbuswatcher
       MYSQL_PASSWORD: bustime
-    networks:
-      - app-tier
 
   python_app:
     build:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - mysql_db
+      - mysql
     volumes:
       - bus_data:/app/data
-    networks:
-      - app-tier
     command:
       # tail -f /dev/null
       # /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -r M1 -o file
       # /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -r M1 -o sqlite
-      /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -r M1 -o mysql  #todo test with 1 line first then try -p or -ALL
+      # /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -r M1 -o mysql
+      /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -p
 
-networks:
-  app-tier:
-    driver: bridge
 
 volumes:
   bus_data:
