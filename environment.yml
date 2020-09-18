@@ -6,6 +6,7 @@ dependencies:
   - ca-certificates=2020.6.20
   - certifi=2020.6.20
   - cffi=1.14.3
+  - click=7.1.2
   - cryptography=3.1
   - dnspython=2.0.0
   - idna=2.10
@@ -22,6 +23,7 @@ dependencies:
   - protobuf=3.13.0
   - pycparser=2.20
   - python=3.7.8
+  - python-dotenv=0.14.0
   - python_abi=3.7
   - readline=8.0
   - setuptools=49.6.0
