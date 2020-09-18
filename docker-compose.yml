@@ -32,6 +32,7 @@ services:
     networks:
       - app-tier
     command:
+      # tail -f /dev/null
       /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -r M1 -o file #todo test with 1 line first then try -p or -ALL
       # /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -r M1 -o sqlite
       # /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -r M1 -o mysql
