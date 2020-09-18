@@ -6,14 +6,14 @@ from datetime import datetime
 
 Base = declarative_base()
 
-class BusObservation(Base): # todo optimize STRING field lengths
+class BusObservation(Base): #future optimize STRING field lengths
     __tablename__ = "buses"
     id = Column(Integer, primary_key=True)
-    timestamp = Column(DateTime) #todo check inputs and convert to DateTime
+    timestamp = Column(DateTime) #future check inputs and convert to DateTime
     route_simple=Column(String(255)) #this is the route name passed through from the command line, may or may not match route_short
     route_long=Column(String(255))
     direction=Column(String(255))
-    service_date=Column(String(255)) #todo check inputs and convert to Date
+    service_date=Column(String(255)) #future check inputs and convert to Date
     trip_id=Column(String(255))
     gtfs_shape_id=Column(String(255))
     route_short=Column(String(255))
@@ -32,7 +32,7 @@ class BusObservation(Base): # todo optimize STRING field lengths
     vehicle_id=Column(String(255))
     gtfs_block_id=Column(String(255))
 
-    # def __repr__(self):# todo repr
+    # def __repr__(self):#future repr
     #    return (f'{self.__class__.__name__}('
     #            f'{self.color!r}, {self.mileage!r})')
 

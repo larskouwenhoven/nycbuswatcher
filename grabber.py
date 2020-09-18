@@ -96,7 +96,7 @@ def get_session(output,):
 
 def get_db_url(output):
     if output == 'mysql':
-        db_url = 'mysql://{}:{}@{}/{}'.format(dbparams['dbuser'],dbparams['dbpassword'],'localhost',dbparams['dbname']) # todo test if production or not
+        db_url = 'mysql://{}:{}@{}/{}'.format(dbparams['dbuser'],dbparams['dbpassword'],'mysql_docker',dbparams['dbname']) # todo VIP test if production or not
     elif output == 'sqlite':
         db_url='sqlite:///data/buses.db'
     return db_url
@@ -108,7 +108,7 @@ def parse_buses(route,data,db_url):
     # below ['Siri']['ServiceDelivery']['VehicleMonitoringDelivery'][0]['VehicleActivity']
     # per http://bustime.mta.info/wiki/Developers/SIRIMonitoredVehicleJourney
 
-    # todo all MonitoredCall substructure, e.g. next stop
+    # future all MonitoredCall substructure, e.g. next stop
 
     lookup = {'route_long':['LineRef'],
               'direction':['DirectionRef'],
