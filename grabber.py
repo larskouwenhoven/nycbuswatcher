@@ -178,7 +178,8 @@ if __name__ == "__main__":
 
 
     if args.production is True:
-        route = 'M1' # for testing, normally # route = 'ALL'
+        route = 'ALL'
+        # route = 'M1'
         output = 'mysql'
 
     else:
