@@ -1,27 +1,21 @@
 
-from urllib.request import urlopen
+# from urllib.request import urlopen
 import argparse
-
+from datetime import datetime
+import time
 import os
 import json
-import datetime
 import requests
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-
-from datetime import datetime
-import time
-import os
-
 from apscheduler.schedulers.background import BackgroundScheduler
-
+from dotenv import load_dotenv
 
 from Database import BusObservation
 
 # load API KEY from .env (dont commit this file to the repo)
-from dotenv import load_dotenv
 load_dotenv()
 
 
@@ -29,22 +23,49 @@ def get_feed(route, output,interval):
     # fetch and prep feed
     # API reference http://bustime.mta.info/wiki/Developers/SIRIVehicleMonitoring
 
+    # if route == "ALL":
+    #     url = "http://bustime.mta.info/api/siri/vehicle-monitoring.json?key=" + os.getenv(
+    #         "API_KEY") + "&VehicleMonitoringDetailLevel=calls"
+    #
+    #     try:
+    #         response = requests.get(url, timeout=interval)
+    #         data = response.json()
+    #         # response = urlopen(url, timeout=120)
+    #         # data = response.read().decode("utf-8")
+    #         # data = json.loads(data)
+    #     except ConnectionError:
+    #         return #soon right directive?
+    #
+    #
+
     if route == "ALL":
-        url = "http://bustime.mta.info/api/siri/vehicle-monitoring.json?key=" + os.getenv(
-            "API_KEY") + "&VehicleMonitoringDetailLevel=calls"
+        routelist = get_routelist()
+        data = []
+        for route in routelist:
 
-        response = requests.get(url, timeout=interval)
-        data = response.json()
+            url = ("http://bustime.mta.info/api/siri/vehicle-monitoring.json?key={}&VehicleMonitoringDetailLevel=calls&LineRef={}").format(os.getenv(
+                "API_KEY"),route)
 
-        # response = urlopen(url, timeout=120)
-        # data = response.read().decode("utf-8")
-        # data = json.loads(data)
+            try:
+                response = requests.get(url, timeout=interval)
+                bus_json = response.json()
+                # response = urlopen(url, timeout=120)
+                # data = response.read().decode("utf-8")
+                # data = json.loads(data)
+            except ConnectionError:
+                return  # soon right directive?
+        data.append(bus_json) #todo this will be a list of JSON dicts, so might need to parse differently
 
     else:
-        url = "http://bustime.mta.info/api/siri/vehicle-monitoring.json?key=" + os.getenv("API_KEY") + "&VehicleMonitoringDetailLevel=calls&LineRef=" + route
-        response = urlopen(url)
-        data = response.read().decode("utf-8")
-        data = json.loads(data)
+        try:
+
+            url = "http://bustime.mta.info/api/siri/vehicle-monitoring.json?key=" + os.getenv("API_KEY") + "&VehicleMonitoringDetailLevel=calls&LineRef=" + route
+            response = requests.get(url, timeout=30)
+            data = response.json()
+
+        except ConnectionError:
+            return #soon right directive?
+
 
     if output == 'screen':
         dump_to_screen(data,route)
@@ -57,7 +78,22 @@ def get_feed(route, output,interval):
 
     return
 
+def get_routelist():
+    url = "http://bustime.mta.info/api/where/routes-for-agency/MTA%20NYCT.json?key=" + os.getenv("API_KEY")
+    response = requests.get(url, timeout=30)
+    routes = response.json()
 
+    pp=pprint.PrettyPrinter(indent=4)
+
+    pp.pprint (routes)
+
+    routelist=[]
+
+    for route in routes['data']['list']:
+        # routelist.append(route['shortName'])
+        routelist.append(route['id'])
+
+    return routelist
 
 def dump_to_screen(data,route):
     print(json.dumps(data, indent=2))
@@ -134,9 +170,17 @@ def parse_buses(route,data,db_url):
 
     buses = []
 
+
+
+    #todo VIP if routes="ALL" will need to loop over below? or are we only getting called once per feed fetch already?
+    #todo might make sense to make that all more linear
+    #todo so the fetch, parse, and dump happens for each route in one function, or group of functions
+    #todo and if we need to do it for ALL routes, we are looping over a list built by a call to get_routelist
+
+
     for b in data['Siri']['ServiceDelivery']['VehicleMonitoringDelivery'][0]['VehicleActivity']:
 
-        bus = BusObservation(route,db_url)
+        bus = BusObservation(route,db_url,datetime.now())
 
         for k,v in lookup.items():
             try:

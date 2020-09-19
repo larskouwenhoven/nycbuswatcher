@@ -2,7 +2,6 @@ from sqlalchemy import Column, Date, DateTime, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 
-from datetime import datetime
 
 Base = declarative_base()
 
@@ -36,8 +35,8 @@ class BusObservation(Base): #future optimize STRING field lengths
     #    return (f'{self.__class__.__name__}('
     #            f'{self.color!r}, {self.mileage!r})')
 
-    def __init__(self, route,db_url):
+    def __init__(self,route,db_url,timestamp):
         self.route_simple = route
-        self.timestamp = datetime.now()
+        self.timestamp = timestamp
         engine = create_engine(db_url, echo=True)
         Base.metadata.create_all(engine) # make sure the table exists every time an instance is created

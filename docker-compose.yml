@@ -1,27 +1,20 @@
 version: '3'
 
 # from https://www.dabbleofdevops.com/blog/setup-a-mysql-python-docker-dev-stack
-
-# Run as
 # docker-compose build; docker-compose up -d
-# Check with
-# docker ps
-# Then check the logs with
-# docker logs --tail 50 $service_name
-# docker-compose images
-# docker-compose logs --tail 20 $service_name
 
 services:
 
   mysql_docker:
     image: mysql:5.7
-    #ports:
-    #  - 3306
+    restart: always
     environment:   # Set up mysql database name and password
       MYSQL_ROOT_PASSWORD: bustime
       MYSQL_DATABASE: buses
       MYSQL_USER: nycbuswatcher
       MYSQL_PASSWORD: bustime
+    volumes:
+      - bus_data:/var/lib/mysql
 
   python_app:
     build:
@@ -37,7 +30,6 @@ services:
       # /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -r M1 -o sqlite
       # /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -r M1 -o mysql
       /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -p
-
 
 volumes:
   bus_data:
