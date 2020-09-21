@@ -8,38 +8,16 @@ import argparse
 import requests
 import gzip
 
-from apscheduler.schedulers.background import BackgroundScheduler
 from dotenv import load_dotenv
 
 import Database as db
-
+import asyncio
 
 # load API KEY from .env (dont commit this file to the repo)
 load_dotenv()
 
-# todo rewrite this using async I/O
+#todo rewrite this using async I/O
 # https://towardsdatascience.com/fast-and-async-in-python-accelerate-your-requests-using-asyncio-62dafca83c33
-
-
-def get_buses(dbparams):
-    start = time.time()
-    routelist = get_routelist()
-    data = []
-    for route in routelist:
-        url = ("http://bustime.mta.info/api/siri/vehicle-monitoring.json?key={}&VehicleMonitoringDetailLevel=calls&LineRef={}").format(os.getenv("API_KEY"),route)
-        try:
-            # sys.stdout.write('>')
-            response = requests.get(url, timeout=30)
-            bus_json = response.json()
-            # raise ConnectionError
-        except ConnectionError:
-            return  # right directive to handle this?
-        data.append({route:bus_json})
-    end = time.time()
-    print('\nFetched {} routes in {} seconds, dumping to compressed archive and database.'.format(len(routelist),(end - start)))
-    dump_to_file(data) # for backup
-    dump_to_db(data,dbparams)
-    return
 
 
 def get_routelist():
@@ -52,39 +30,24 @@ def get_routelist():
         routelist.append(route['id'])
     return routelist
 
+async def wrapper(routelist):
+    await asyncio.gather(*[get_buses(_) for _ in routelist])
 
-def dump_to_file(data):
-    path = ("data/")
-    check = os.path.isdir(path)
-    if not check:
-        os.makedirs(path)
-        print("created folder : ", path)
-    else:
-        pass
-    date = datetime.now().strftime("%Y-%m-%dT_%H:%M:%S.%f")
-    for route_bundle in data:
-        for route_id,route_report in route_bundle.items():
-            dumpfile=(path + route_id.split()[1] + '_' + date +'.gz')
-            # with open(dumpfile, 'w') as json_file:
-            #    json.dump(data, json_file)
-            #
-            # from https://stackoverflow.com/questions/49534901/is-there-a-way-to-use-json-dump-with-gzip/49535758#49535758
-            # todo test reloading this compressed data
-            with gzip.open(dumpfile, 'wt', encoding="ascii") as zipfile:
-                json.dump(route_report, zipfile)
-    return
-
-
-def dump_to_db(data,dbparams):
-    session,db_url = db.get_session(dbparams)
-    print('Dumping to {}'.format(db_url))
-    for route_bundle in data:
-        sys.stdout.write(' <{}> '.format(str(next(iter(route_bundle)))))
-        for route_id,route_report in route_bundle.items():
-            for bus in parse_buses(route_id, route_report, db_url):
-                session.add(bus)
-        session.commit()
-    return
+async def get_buses(route):
+    start = time.time()
+    data = []
+    url = ("http://bustime.mta.info/api/siri/vehicle-monitoring.json?key={}&VehicleMonitoringDetailLevel=calls&LineRef={}").format(os.getenv("API_KEY"),route)
+    try:
+        # sys.stdout.write('>')
+        response = requests.get(url, timeout=30)
+        bus_json = response.json()
+        # raise ConnectionError
+    except ConnectionError:
+        return  # right directive to handle this?
+    data.append({route:bus_json})
+    end = time.time()
+    print('\nFetched {} routes in {} seconds, dumping to compressed archive and database.'.format(len(routelist),(end - start)))
+    return data
 
 
 def parse_buses(route,data,db_url):
@@ -133,33 +96,57 @@ def parse_buses(route,data,db_url):
     return buses
 
 
-if __name__ == "__main__":
+def dump_to_file(data):
+    path = ("data/")
+    check = os.path.isdir(path)
+    if not check:
+        os.makedirs(path)
+        print("created folder : ", path)
+    else:
+        pass
+    date = datetime.now().strftime("%Y-%m-%dT_%H:%M:%S.%f")
+    for route_bundle in data:
+        for route_id,route_report in route_bundle.items():
+            dumpfile=(path + route_id.split()[1] + '_' + date +'.gz')
+            # with open(dumpfile, 'w') as json_file:
+            #    json.dump(data, json_file)
+            #
+            # from https://stackoverflow.com/questions/49534901/is-there-a-way-to-use-json-dump-with-gzip/49535758#49535758
+            # todo test reloading this compressed data
+            with gzip.open(dumpfile, 'wt', encoding="ascii") as zipfile:
+                json.dump(route_report, zipfile)
+    return
 
+
+def dump_to_db(data,dbparams):
+    session,db_url = db.get_session(dbparams)
+    print('Dumping to {}'.format(db_url))
+    for route_bundle in data:
+        sys.stdout.write(' <{}> '.format(str(next(iter(route_bundle)))))
+        for route_id,route_report in route_bundle.items():
+            for bus in parse_buses(route_id, route_report, db_url):
+                session.add(bus)
+        session.commit()
+    return
+
+
+if __name__ == "__main__":
     dbparams = {
         'dbname': 'buses',
         'dbuser': 'nycbuswatcher',
         'dbpassword': 'bustime'
     }
-
     parser = argparse.ArgumentParser(description='NYCbuswatcher grabber, fetches and stores current position for buses')
     parser.add_argument('-p', action="store_true", dest="production")
     args = parser.parse_args()
-
     if args.production is True:
-
         interval = 180
         dbparams['dbhost']='mysql_docker'
         print('NYC MTA BusTime API Scraper v0.1. Anthony Townsend <atownsend@cornell.edu>')
         print('Scanning on {}-second interval.'.format(interval))
-        scheduler = BackgroundScheduler()
-        scheduler.add_job(get_buses, 'interval', seconds=interval,args=[dbparams])
-        scheduler.start()
-        try:
-            while True:
-                time.sleep(2)
-        except (KeyboardInterrupt, SystemExit):
-            scheduler.shutdown()
-
     elif args.production is False: #run once and quit
         dbparams['dbhost']='localhost'
-        get_buses(dbparams)
+    routelist = get_routelist()
+    data = asyncio.run(get_buses(routelist)) #bug # https://www.infoworld.com/article/3454442/get-started-with-async-in-python.html
+    dump_to_file(data)  # for backup # bug might have to unpack data differently
+    dump_to_db(data, dbparams)
