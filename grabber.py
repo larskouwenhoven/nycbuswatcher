@@ -37,8 +37,8 @@ def get_buses(dbparams):
         data.append({route:bus_json})
     end = time.time()
     print('\nFetched {} routes in {} seconds, dumping to compressed archive and database.'.format(len(routelist),(end - start)))
-    dump_to_file(data) # for backup
-    dump_to_db(data,dbparams)
+    # dump_to_file(data) # for backup
+    # dump_to_db(data,dbparams)
     return
 
 
