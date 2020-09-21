@@ -31,13 +31,11 @@ Fetches list of active routes from OneBusAway API, then cycles through and fetch
     ```
 
 ##### todo (descending importance)
+1. use `asyncio` to speed up feed downloads
 1. add parsing for the MonitoredCall portion of API response for each bus (currently discarded)
-5. db optimization to reduce size
-6. db optimization improve query performance
-1. add ability to (batch) re-process archived files 
-5. if all buses API proves unreliable, write two new loops:
-    - one to update a list of routes to scan, from the OBA API every 15 mins
-    - second to loop the get_buses over that list, multi-threaded/async
+2. db optimization to reduce size (VARCHAR lengths)
+3. db optimization improve query performance
+4. add ability to (batch) re-process archived files through parser, db_dump
 
 # development
 
@@ -46,13 +44,11 @@ Fetches list of active routes from OneBusAway API, then cycles through and fetch
 
 1. stop monitoring—[SIRIStopMonitoring](http://bustime.mta.info/wiki/Developers/SIRIStopMonitoring) reports info on individual stops, 1 at a time only.
 2. route geometry from [OneBusAway API](http://bustime.mta.info/wiki/Developers/OneBusAwayRESTfulAPI) (much easier than working with the GTFS) on:
-- The list of routes covered by MTA Bus Time
 - Full information about each stop covered by MTA Bus Time (e.g. the lat/lon coordinates, stop name, list of routes serving that stop)
 - The stops served by a given route
 - The physical geometry for a given route (for mapping and geographic calculations)
 - The schedule of trips serving a given stop or route (repeat: schedule, having nothing to do with the real-time data)
 - The stops or routes near a given location
-
 
 
 ### internal api
