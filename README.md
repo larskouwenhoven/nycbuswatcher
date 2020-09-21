@@ -9,6 +9,8 @@ Fetches list of active routes from OneBusAway API, then cycles through and fetch
 
 # install
 
+n.b. there is a working `docker-compose` script in the repo but it may be a little out of date/wobbly, and missing a few bits like the .env file which you'll have to copy over manually
+
 1. clone the repo
 2. obtain an API key from http://bustime.mta.info/wiki/Developers/Index/ and put it in .env
     ```
@@ -30,12 +32,15 @@ Fetches list of active routes from OneBusAway API, then cycles through and fetch
     python grabber2.py -p # production: runs in infinite loop at set interval using scheduler (hardcoded for now)
     ```
 
+
+
 ##### todo (descending importance)
 1. use `asyncio` to speed up feed downloads
-1. add parsing for the MonitoredCall portion of API response for each bus (currently discarded)
-2. db optimization to reduce size (VARCHAR lengths)
-3. db optimization improve query performance
-4. add ability to (batch) re-process archived files through parser, db_dump
+2. finish/debug dockerization
+3. add parsing for the MonitoredCall portion of API response for each bus (currently discarded)
+4. db optimization to reduce size (VARCHAR lengths)
+5. db optimization improve query performance
+6. add ability to (batch) re-process archived files through parser, db_dump
 
 # development
 
