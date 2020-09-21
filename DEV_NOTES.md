@@ -10,7 +10,7 @@ SELECT service_date, COUNT(*) FROM buses GROUP BY service_date;
 
 
 # to do
-
-1. rewrite to load production/dev env from external and set globally?
-2. write function to get list of routes from OBA API (test in python console)
-2. Write an asynchronous loop to grab vehicles line by line
+1. finish refactoring to condense fetch, parse, dump into one pipeline, and a loop around it populated by either a command line arg or a call to get_routelist
+2. rewrite the fetch part as async
+3. load production/dev env from external and set globally?
+4. move API key to a docker secret?

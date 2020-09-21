@@ -1,7 +1,16 @@
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 from sqlalchemy import Column, Date, DateTime, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
 
+
+def get_session(dbparams):
+    db_url = 'mysql://{}:{}@{}/{}'.format(dbparams['dbuser'],dbparams['dbpassword'],dbparams['dbhost'],dbparams['dbname'])
+    engine = create_engine(db_url, echo=True)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    return session,db_url
 
 Base = declarative_base()
 

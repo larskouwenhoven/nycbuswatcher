@@ -1,3 +1,12 @@
+# NYC MTA BusTime Scraper
+#### v0.1 2020 Sept 20
+Anthony Townsend <atownsend@cornell.edu>
+
+# function
+
+Fetches list of active routes from OneBusAway API, then cycles through and fetches current vehicle positions for all buses operating on these routes. This avoids the poor performance of trying to grab the entire system feed from the BusTime API. Dumps full API response (for later reprocessing to extract additional data) to compressed individual files and most of the vehicle status fields to mysql table (the upcoming stop data is omitted from the database dump for now).
+
+
 # install
 
 1. clone the repo
@@ -15,17 +24,11 @@
     FLUSH PRIVILEGES;
  
     ```
-
-
-# use
-
-### grabber.py
-
-
-```python
-python grabber.py -r M1
-python grabber.py -r ALL
-```
+3. run
+    ```python
+    python grabber2.py # development: run once and quite
+    python grabber2.py -p # production: runs in infinite loop at set interval using scheduler (hardcoded for now)
+    ```
 
 ##### todo (descending importance)
 1. add parsing for the MonitoredCall portion of API response for each bus (currently discarded)
@@ -34,7 +37,7 @@ python grabber.py -r ALL
 1. add ability to (batch) re-process archived files 
 5. if all buses API proves unreliable, write two new loops:
     - one to update a list of routes to scan, from the OBA API every 15 mins
-    - second to loop the get_feed over that list, multi-threaded/async
+    - second to loop the get_buses over that list, multi-threaded/async
 
 # development
 
