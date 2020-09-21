@@ -17,7 +17,7 @@ import Database as db
 # load API KEY from .env (dont commit this file to the repo)
 load_dotenv()
 
-#todo rewrite this using async I/O
+# todo rewrite this using async I/O
 # https://towardsdatascience.com/fast-and-async-in-python-accelerate-your-requests-using-asyncio-62dafca83c33
 
 
