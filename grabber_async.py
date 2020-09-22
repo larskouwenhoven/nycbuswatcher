@@ -6,7 +6,6 @@ import requests
 import os
 from datetime import datetime
 import json
-import sys
 import time
 import gzip
 
@@ -34,7 +33,6 @@ def dump_to_screen(feeds):
             print (data.json())
     return
 
-
 def dump_to_file(feeds):
     path = ("data/")
     check = os.path.isdir(path)
@@ -53,13 +51,12 @@ def dump_to_file(feeds):
             # with open(dumpfile, 'w') as json_file:
             #    json.dump(route_report.json(), json_file, indent=4)
 
-            # # compressed
+            # compressed
             dumpfile=(path + route_id.split()[1] + '_' + timestamp_pretty +'.gz')
             with gzip.open(dumpfile, 'wt', encoding="ascii") as zipfile:
                 json.dump(route_report.json(), zipfile)
 
     return timestamp
-
 
 def dump_to_db(dbparams,timestamp, feeds):
 
@@ -74,11 +71,40 @@ def dump_to_db(dbparams,timestamp, feeds):
     return
 
 
+
+
 if __name__ == "__main__":
     start = time.time()
 
-    # todo add production switch + chane dbhost to 'mysql_docker'
-    # todo add scheduler
+    # # todo add production switch + chane dbhost to 'mysql_docker'
+    # parser = argparse.ArgumentParser(description='NYCbuswatcher grabber, fetches and stores current position for buses')
+    # parser.add_argument('-p', action="store_true", dest="production")
+    # args = parser.parse_args()
+
+
+    # # todo add scheduler
+    # from apscheduler.schedulers.background import BackgroundScheduler
+    # from dotenv import load_dotenv
+    # if args.production is True:
+    #
+    #     interval = 180
+    #     dbparams['dbhost']='mysql_docker'
+    #     print('NYC MTA BusTime API Scraper v0.1. Anthony Townsend <atownsend@cornell.edu>')
+    #     print('Scanning on {}-second interval.'.format(interval))
+    #     scheduler = BackgroundScheduler()
+    #     scheduler.add_job(get_buses, 'interval', seconds=interval,args=[dbparams])
+    #     scheduler.start()
+    #     try:
+    #         while True:
+    #             time.sleep(2)
+    #     except (KeyboardInterrupt, SystemExit):
+    #         scheduler.shutdown()
+    #
+    # elif args.production is False: #run once and quit
+    #     dbparams['dbhost']='localhost'
+    #     get_buses(dbparams)
+
+
 
     dbparams = {
         'dbname': 'buses',
@@ -97,7 +123,7 @@ if __name__ == "__main__":
 
     async def main(path_list):
         from asks.sessions import Session
-        s = Session('http://bustime.mta.info', connections=5) # future move this to a parameter. low for development to avoid DNS errors, higher OK in production
+        s = Session('http://bustime.mta.info', connections=5) # todo move this to a parameter. low for development to avoid DNS errors, higher OK in production
         async with trio.open_nursery() as n:
             for path_bundle in path_list:
                 for route_id,path in path_bundle.items():
