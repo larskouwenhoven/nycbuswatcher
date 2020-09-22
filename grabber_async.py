@@ -34,6 +34,7 @@ def dump_to_screen(feeds):
             print (data.json())
     return
 
+
 def dump_to_file(feeds):
     path = ("data/")
     check = os.path.isdir(path)
@@ -47,15 +48,18 @@ def dump_to_file(feeds):
     for route_bundle in feeds:
         for route_id,route_report in route_bundle.items():
 
-            # uncompressed version
-            dumpfile=(path + route_id.split()[1] + '_' + timestamp_pretty +'.json')
-            with open(dumpfile, 'w') as json_file:
-               json.dump(route_report.json(), json_file, indent=4)
+            # # uncompressed version
+            # dumpfile=(path + route_id.split()[1] + '_' + timestamp_pretty +'.json')
+            # with open(dumpfile, 'w') as json_file:
+            #    json.dump(route_report.json(), json_file, indent=4)
 
-            # future add compression
-            # https://medium.com/@busybus/zipjson-3ed15f8ea85d
+            # # compressed
+            dumpfile=(path + route_id.split()[1] + '_' + timestamp_pretty +'.gz')
+            with gzip.open(dumpfile, 'wt', encoding="ascii") as zipfile:
+                json.dump(route_report.json(), zipfile)
 
     return timestamp
+
 
 def dump_to_db(dbparams,timestamp, feeds):
 
@@ -68,8 +72,6 @@ def dump_to_db(dbparams,timestamp, feeds):
                 session.add(bus)
         session.commit()
     return
-
-
 
 
 if __name__ == "__main__":

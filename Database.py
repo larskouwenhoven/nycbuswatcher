@@ -13,48 +13,84 @@ def get_session(dbparams):
     return session,db_url
 
 def parse_buses(timestamp, route, data, db_url): #todo this is slower than expected (~0.25 seconds per route)
-    lookup = {'route_long':['LineRef'],
-              'direction':['DirectionRef'],
-              'service_date': ['FramedVehicleJourneyRef', 'DataFrameRef'],
-              'trip_id': ['FramedVehicleJourneyRef', 'DatedVehicleJourneyRef'],
-              'gtfs_shape_id': ['JourneyPatternRef'],
-              'route_short': ['PublishedLineName'],
-              'agency': ['OperatorRef'],
-              'origin_id':['OriginRef'],
-              'destination_id':['DestinationRef'],
-              'destination_name':['DestinationName'],
-              # 'scheduled_origin':['OriginAimedDepartureTime'], # appears to be omitted from feed
-              'alert': ['SituationRef', 'SituationSimpleRef'],
-              'lat':['VehicleLocation','Latitude'],
-              'lon':['VehicleLocation','Longitude'],
-              'bearing': ['Bearing'],
-              'progress_rate': ['ProgressRate'],
-              'progress_status': ['ProgressStatus'],
-              'occupancy': ['Occupancy'],
-              'vehicle_id':['VehicleRef'],
-              'gtfs_block_id':['BlockRef']
+    # lookup = {'route_long':['LineRef'],
+    #           'direction':['DirectionRef'],
+    #           'service_date': ['FramedVehicleJourneyRef', 'DataFrameRef'],
+    #           'trip_id': ['FramedVehicleJourneyRef', 'DatedVehicleJourneyRef'],
+    #           'gtfs_shape_id': ['JourneyPatternRef'],
+    #           'route_short': ['PublishedLineName'],
+    #           'agency': ['OperatorRef'],
+    #           'origin_id':['OriginRef'],
+    #           'destination_id':['DestinationRef'],
+    #           'destination_name':['DestinationName'],
+    #           # 'scheduled_origin':['OriginAimedDepartureTime'], # appears to be omitted from feed
+    #           'alert': ['SituationRef', 'SituationSimpleRef'],
+    #           'lat':['VehicleLocation','Latitude'],
+    #           'lon':['VehicleLocation','Longitude'],
+    #           'bearing': ['Bearing'],
+    #           'progress_rate': ['ProgressRate'],
+    #           'progress_status': ['ProgressStatus'],
+    #           'occupancy': ['Occupancy'],
+    #           'vehicle_id':['VehicleRef'],
+    #           'gtfs_block_id':['BlockRef']
+    #           }
+    lookup_1 = {'LineRef':'route_long',
+              'DirectionRef':'direction',
+              'JourneyPatternRef': 'gtfs_shape_id',
+              'PublishedLineName' : 'route_short',
+              'OperatorRef': 'agency',
+              'OriginRef' :'origin_id',
+              'DestinationRef':'destination_id',
+              'DestinationName':'destination_name',
+              'Bearing': 'bearing',
+              'ProgressRate' : 'progress_rate',
+              'ProgressStatus': 'progress_status',
+              'Occupancy': 'occupancy',
+              'VehicleRef':'vehicle_id',
+              'BlockRef':'gtfs_block_id'
               }
+
+    lookup_2 ={
+
+        ('FramedVehicleJourneyRef', 'DataFrameRef'):'service_date',
+        ('FramedVehicleJourneyRef', 'DatedVehicleJourneyRef'):'trip_id',
+        ('SituationRef', 'SituationSimpleRef'): 'alert',
+        ('VehicleLocation', 'Latitude'): 'lat',
+        ('VehicleLocation', 'Longitude'): 'lon'
+    }
+
+
+
     buses = []
-    try: #bug 'list indices must be integers or strings — BY STEPPING THROUGH THIS SECTION UNTIL IT APPEARS IN CONSOLE
-        for b in data['Siri']['ServiceDelivery']['VehicleMonitoringDelivery'][0]['VehicleActivity']:
-            bus = BusObservation(route,db_url,timestamp)
-            for k,v in lookup.items(): #todo speed this up by reversing the key:value pairs in lookup, and simply using b here as the key and getting the value from lookup
-                try:
-                    if len(v) > 1:
-                        val = b['MonitoredVehicleJourney'][v[0]][v[1]]
-                        setattr(bus, k, val)
-                    else:
-                        val = b['MonitoredVehicleJourney'][v[0]]
-                        setattr(bus, k, val)
-                except LookupError:
-                    pass
-                except Exception as e:
-                    print (e)
-                    pass
-            # print(bus)
-            buses.append(bus)
-    except KeyError: #no VehicleActivity?
-        pass
+    try:
+        vehicleActivity = data['Siri']['ServiceDelivery']['VehicleMonitoringDelivery'][0]['VehicleActivity']
+
+    except KeyError:
+        print('no VehicleActivity for {}'.format(route))
+        return buses # returns empty result if no VehicleActivity
+
+    for b in vehicleActivity:
+        bus = BusObservation(route,db_url,timestamp)
+
+        # single
+        for k,v in lookup_1.items():
+            try:
+                val= b['MonitoredVehicleJourney'][k]
+            except KeyError:
+                pass
+            setattr(bus, v, val)
+
+        # flatten ones with nested/compound keys
+        for k,v in lookup_2.items():
+            try:
+                val = b['MonitoredVehicleJourney'][k[0]][k[1]]
+            except TypeError:
+                pass
+            setattr(bus, v, val)
+
+        # print(bus)
+        buses.append(bus)
+
     return buses
 
 
