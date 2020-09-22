@@ -5,10 +5,10 @@ from datetime import datetime
 import json
 import time
 import gzip
+import pickle
 
 import Database as db
 
-from urllib3.exceptions import ReadTimeoutError
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -22,23 +22,20 @@ def get_path_list():
 
     try:
         response = requests.get(url, timeout=30)
-    except ReadTimeoutError: # bug this doesnt seem to work
-        print('Could not retrieve route definitions. OneBusAway API probably overloaded.')
-
-    try:
-        routes = response.json() # bug need to handle 503 errors here—load route definitions from the data/path_list.json file
-    except:
-        print("need to handle 503 errors here")
-        pass
-
-    print('Found {} routes. Fetching current positions with ASYNCHRONOUS requests...'.format(len(routes['data']['list'])))
+        if response.status_code == 503: # response is bad, so go to exception and load the pickle
+            raise Exception(503, "503 error code fetching route definitions. OneBusAway API probably overloaded.")
+        else: # response is good, so save it to pickle and proceed
+            with open((filepath() + 'routes-for-agency.pickle'), "wb") as pickle_file:
+                pickle.dump(response,pickle_file)
+    except Exception as e: # response is bad, so load the last good pickle
+        with open((filepath() + 'routes-for-agency.pickle'), "rb") as pickle_file:
+            response = pickle.load(pickle_file)
+    finally:
+        routes = response.json()
+        print('Found {} routes. Fetching current positions with ASYNCHRONOUS requests...'.format(len(routes['data']['list'])))
 
     for route in routes['data']['list']:
         path_list.append({route['id']:"/api/siri/vehicle-monitoring.json?key={}&VehicleMonitoringDetailLevel=calls&LineRef={}".format(os.getenv("API_KEY"), route['id'])})
-
-    # dump the list of routes json file
-    with open((filepath() +'path_list.json'), 'w') as json_file:
-       json.dump(path_list, json_file, indent=4) # use json.dumps ?
 
     return path_list
 
