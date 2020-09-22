@@ -35,10 +35,10 @@ def parse_buses(timestamp, route, data, db_url): #todo this is slower than expec
               'gtfs_block_id':['BlockRef']
               }
     buses = []
-    try: #bug 'list indices must be intergers or strings — BY STEPPING THROUGH THIS SECTION UNTIL IT APPEARS IN CONSOLE
+    try: #bug 'list indices must be integers or strings — BY STEPPING THROUGH THIS SECTION UNTIL IT APPEARS IN CONSOLE
         for b in data['Siri']['ServiceDelivery']['VehicleMonitoringDelivery'][0]['VehicleActivity']:
             bus = BusObservation(route,db_url,timestamp)
-            for k,v in lookup.items():
+            for k,v in lookup.items(): #todo speed this up by reversing the key:value pairs in lookup, and simply using b here as the key and getting the value from lookup
                 try:
                     if len(v) > 1:
                         val = b['MonitoredVehicleJourney'][v[0]][v[1]]
