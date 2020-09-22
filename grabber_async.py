@@ -1,7 +1,4 @@
-# many_get.py
-# make a whole pile of api calls and store
-# their response objects in a list.
-# Using the homogeneous-session.
+import argparse
 import requests
 import os
 from datetime import datetime
@@ -10,6 +7,8 @@ import time
 import gzip
 
 import Database as db
+
+from urllib3.exceptions import ReadTimeoutError
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -20,11 +19,27 @@ import trio
 def get_path_list():
     path_list = []
     url = "http://bustime.mta.info/api/where/routes-for-agency/MTA%20NYCT.json?key=" + os.getenv("API_KEY")
-    response = requests.get(url, timeout=30)
-    routes = response.json()
+
+    try:
+        response = requests.get(url, timeout=30)
+    except ReadTimeoutError: # bug this doesnt seem to work
+        print('Could not retrieve route definitions. OneBusAway API probably overloaded.')
+
+    try:
+        routes = response.json() # bug need to handle 503 errors here—load route definitions from the data/path_list.json file
+    except:
+        print("need to handle 503 errors here")
+        pass
+
     print('Found {} routes. Fetching current positions with ASYNCHRONOUS requests...'.format(len(routes['data']['list'])))
+
     for route in routes['data']['list']:
         path_list.append({route['id']:"/api/siri/vehicle-monitoring.json?key={}&VehicleMonitoringDetailLevel=calls&LineRef={}".format(os.getenv("API_KEY"), route['id'])})
+
+    # dump the list of routes json file
+    with open((filepath() +'path_list.json'), 'w') as json_file:
+       json.dump(path_list, json_file, indent=4) # use json.dumps ?
+
     return path_list
 
 def dump_to_screen(feeds):
@@ -33,7 +48,7 @@ def dump_to_screen(feeds):
             print (data.json())
     return
 
-def dump_to_file(feeds):
+def filepath():
     path = ("data/")
     check = os.path.isdir(path)
     if not check:
@@ -41,21 +56,15 @@ def dump_to_file(feeds):
         print("created folder : ", path)
     else:
         pass
-    timestamp = datetime.now()
-    timestamp_pretty = timestamp.strftime("%Y-%m-%dT_%H:%M:%S.%f")
+    return path
+
+def dump_to_file(feeds):
+    timestamp_pretty = datetime.now().strftime("%Y-%m-%dT_%H:%M:%S.%f")
     for route_bundle in feeds:
         for route_id,route_report in route_bundle.items():
-
-            # # uncompressed version
-            # dumpfile=(path + route_id.split()[1] + '_' + timestamp_pretty +'.json')
-            # with open(dumpfile, 'w') as json_file:
-            #    json.dump(route_report.json(), json_file, indent=4)
-
-            # compressed
-            dumpfile=(path + route_id.split()[1] + '_' + timestamp_pretty +'.gz')
+            dumpfile=(filepath() + route_id.split()[1] + '_' + timestamp_pretty +'.gz')
             with gzip.open(dumpfile, 'wt', encoding="ascii") as zipfile:
                 json.dump(route_report.json(), zipfile)
-
     return timestamp
 
 def dump_to_db(dbparams,timestamp, feeds):
@@ -76,42 +85,45 @@ def dump_to_db(dbparams,timestamp, feeds):
 if __name__ == "__main__":
     start = time.time()
 
-    # # todo add production switch + chane dbhost to 'mysql_docker'
-    # parser = argparse.ArgumentParser(description='NYCbuswatcher grabber, fetches and stores current position for buses')
-    # parser.add_argument('-p', action="store_true", dest="production")
-    # args = parser.parse_args()
-
-
-    # # todo add scheduler
-    # from apscheduler.schedulers.background import BackgroundScheduler
-    # from dotenv import load_dotenv
-    # if args.production is True:
-    #
-    #     interval = 180
-    #     dbparams['dbhost']='mysql_docker'
-    #     print('NYC MTA BusTime API Scraper v0.1. Anthony Townsend <atownsend@cornell.edu>')
-    #     print('Scanning on {}-second interval.'.format(interval))
-    #     scheduler = BackgroundScheduler()
-    #     scheduler.add_job(get_buses, 'interval', seconds=interval,args=[dbparams])
-    #     scheduler.start()
-    #     try:
-    #         while True:
-    #             time.sleep(2)
-    #     except (KeyboardInterrupt, SystemExit):
-    #         scheduler.shutdown()
-    #
-    # elif args.production is False: #run once and quit
-    #     dbparams['dbhost']='localhost'
-    #     get_buses(dbparams)
-
-
-
+    # future this stuff shouldn't be hard-coded both here and in docker-compose.yml—load from a config.py or .env
     dbparams = {
         'dbname': 'buses',
         'dbuser': 'nycbuswatcher',
         'dbpassword': 'bustime',
         'dbhost':'localhost'
     }
+
+
+    parser = argparse.ArgumentParser(description='NYCbuswatcher grabber, fetches and stores current position for buses')
+    parser.add_argument('-p', action="store_true", dest="production")
+    args = parser.parse_args()
+
+
+    # # todo add scheduler
+    # from apscheduler.schedulers.background import BackgroundScheduler
+
+    print('NYC MTA BusTime API Scraper v0.1. Anthony Townsend <atownsend@cornell.edu>')
+
+    if args.production is True:
+        print('PRODUCTION MODE')
+        connections=20
+        dbparams['dbhost']='mysql_docker'
+
+        # interval = 60
+        # print('Scanning on {}-second interval.'.format(interval))
+        # scheduler = BackgroundScheduler()
+        # scheduler.add_job(get_buses, 'interval', seconds=interval,args=[dbparams])
+        # scheduler.start()
+        # try:
+        #     while True:
+        #         time.sleep(2)
+        # except (KeyboardInterrupt, SystemExit):
+        #     scheduler.shutdown()
+
+    elif args.production is False: #run once and quit
+        print('development MODE')
+        connections=5
+        dbparams['dbhost']='localhost'
 
     path_list = get_path_list()
 
@@ -123,7 +135,7 @@ if __name__ == "__main__":
 
     async def main(path_list):
         from asks.sessions import Session
-        s = Session('http://bustime.mta.info', connections=5) # todo move this to a parameter. low for development to avoid DNS errors, higher OK in production
+        s = Session('http://bustime.mta.info', connections=connections)
         async with trio.open_nursery() as n:
             for path_bundle in path_list:
                 for route_id,path in path_bundle.items():
@@ -137,6 +149,4 @@ if __name__ == "__main__":
 
     end = time.time()
     print('\nFetched {} routes in {:2f} seconds to uncompressed archive and database.'.format(len(feeds),(end - start)))
-
-
 
