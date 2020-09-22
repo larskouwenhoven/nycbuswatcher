@@ -23,14 +23,10 @@ def get_path_list():
     url = "http://bustime.mta.info/api/where/routes-for-agency/MTA%20NYCT.json?key=" + os.getenv("API_KEY")
     response = requests.get(url, timeout=30)
     routes = response.json()
-    print(
-        'Found {} routes. Fetching current positions with ASYNCHRONOUS requests...'.format(len(routes['data']['list'])))
+    print('Found {} routes. Fetching current positions with ASYNCHRONOUS requests...'.format(len(routes['data']['list'])))
     for route in routes['data']['list']:
-        path_list.append(
-            {route['id']:"/api/where/routes-for-agency/MTA%20NYCT.json?key={}&VehicleMonitoringDetailLevel=calls&LineRef={}".format(os.getenv("API_KEY"), route['id'])}
-        )
-    return path_list #bug host not found error bustime.mta.info, catch wait 3-5 sec and try again
-
+        path_list.append({route['id']:"/api/siri/vehicle-monitoring.json?key={}&VehicleMonitoringDetailLevel=calls&LineRef={}".format(os.getenv("API_KEY"), route['id'])})
+    return path_list
 
 def dump_to_screen(feeds):
     for route_bundle in feeds:
@@ -46,28 +42,29 @@ def dump_to_file(feeds):
         print("created folder : ", path)
     else:
         pass
-    date = datetime.now().strftime("%Y-%m-%dT_%H:%M:%S.%f")
+    timestamp = datetime.now()
+    timestamp_pretty = timestamp.strftime("%Y-%m-%dT_%H:%M:%S.%f")
     for route_bundle in feeds:
         for route_id,route_report in route_bundle.items():
 
             # uncompressed version
-            dumpfile=(path + route_id.split()[1] + '_' + date +'.json')
+            dumpfile=(path + route_id.split()[1] + '_' + timestamp_pretty +'.json')
             with open(dumpfile, 'w') as json_file:
                json.dump(route_report.json(), json_file, indent=4)
 
-            # todo add compression
+            # future add compression
             # https://medium.com/@busybus/zipjson-3ed15f8ea85d
 
-    return
+    return timestamp
 
-def dump_to_db(dbparams,feeds): # todo debug database
+def dump_to_db(dbparams,timestamp, feeds):
 
     session,db_url = db.get_session(dbparams)
     print('Dumping to {}'.format(db_url))
     for route_bundle in feeds:
-        # sys.stdout.write(' <{}> '.format(str(next(iter(route_bundle)))))
         for route_id,route_report in route_bundle.items():
-            for bus in db.parse_buses(route_id, route_report.json(), db_url):
+            buses = db.parse_buses(timestamp, route_id, route_report.json(), db_url)
+            for bus in buses:
                 session.add(bus)
         session.commit()
     return
@@ -98,18 +95,17 @@ if __name__ == "__main__":
 
     async def main(path_list):
         from asks.sessions import Session
-        s = Session('http://bustime.mta.info', connections=20)
+        s = Session('http://bustime.mta.info', connections=5) # future move this to a parameter. low for development to avoid DNS errors, higher OK in production
         async with trio.open_nursery() as n:
             for path_bundle in path_list:
                 for route_id,path in path_bundle.items():
                     n.start_soon(grabber, s, path, route_id )
 
-
-    trio.run(main, path_list) # bug ValueError: 'bustime.mta.info' does not appear to be an IPv4 or IPv6 address
+    trio.run(main, path_list)
 
     # dump_to_screen(feeds)
-    dump_to_file(feeds)
-    dump_to_db(dbparams, feeds)
+    timestamp = dump_to_file(feeds)
+    dump_to_db(dbparams,timestamp, feeds)
 
     end = time.time()
     print('\nFetched {} routes in {:2f} seconds to uncompressed archive and database.'.format(len(feeds),(end - start)))

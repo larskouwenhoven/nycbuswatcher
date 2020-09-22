@@ -17,9 +17,6 @@ import Database as db
 # load API KEY from .env (dont commit this file to the repo)
 load_dotenv()
 
-#todo rewrite this using async I/O
-# https://towardsdatascience.com/fast-and-async-in-python-accelerate-your-requests-using-asyncio-62dafca83c33
-
 
 def get_buses(dbparams):
     start = time.time()
@@ -69,7 +66,6 @@ def dump_to_file(data):
             #    json.dump(data, json_file)
             #
             # from https://stackoverflow.com/questions/49534901/is-there-a-way-to-use-json-dump-with-gzip/49535758#49535758
-            # todo test reloading this compressed data
             with gzip.open(dumpfile, 'wt', encoding="ascii") as zipfile:
                 json.dump(route_report, zipfile)
     return

@@ -1,6 +1,3 @@
-import sys
-from datetime import datetime
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -15,7 +12,7 @@ def get_session(dbparams):
     session = Session()
     return session,db_url
 
-def parse_buses(route,data,db_url):
+def parse_buses(timestamp, route, data, db_url): #todo this is slower than expected (~0.25 seconds per route)
     lookup = {'route_long':['LineRef'],
               'direction':['DirectionRef'],
               'service_date': ['FramedVehicleJourneyRef', 'DataFrameRef'],
@@ -38,9 +35,9 @@ def parse_buses(route,data,db_url):
               'gtfs_block_id':['BlockRef']
               }
     buses = []
-    try:
+    try: #bug 'list indices must be intergers or strings — BY STEPPING THROUGH THIS SECTION UNTIL IT APPEARS IN CONSOLE
         for b in data['Siri']['ServiceDelivery']['VehicleMonitoringDelivery'][0]['VehicleActivity']:
-            bus = BusObservation(route,db_url,datetime.now())
+            bus = BusObservation(route,db_url,timestamp)
             for k,v in lookup.items():
                 try:
                     if len(v) > 1:
@@ -54,11 +51,11 @@ def parse_buses(route,data,db_url):
                 except Exception as e:
                     print (e)
                     pass
-            sys.stdout.write('.')
+            # print(bus)
             buses.append(bus)
     except KeyError: #no VehicleActivity?
         pass
-    return buses # bug nothing going to the database?
+    return buses
 
 
 
@@ -68,7 +65,7 @@ Base = declarative_base()
 class BusObservation(Base): #future optimize STRING field lengths
     __tablename__ = "buses"
     id = Column(Integer, primary_key=True)
-    timestamp = Column(DateTime) #future check inputs and convert to DateTime
+    timestamp = Column(DateTime)
     route_simple=Column(String(255)) #this is the route name passed through from the command line, may or may not match route_short
     route_long=Column(String(255))
     direction=Column(String(255))
@@ -91,12 +88,17 @@ class BusObservation(Base): #future optimize STRING field lengths
     vehicle_id=Column(String(255))
     gtfs_block_id=Column(String(255))
 
-    # def __repr__(self):#future repr
-    #    return (f'{self.__class__.__name__}('
-    #            f'{self.color!r}, {self.mileage!r})')
+    def __repr__(self):
+        output = ''
+        for var, val in vars(self).items():
+            if var == '_sa_instance_state':
+                continue
+            else:
+                output = output + ('{} {} '.format(var,val))
+        return output
 
     def __init__(self,route,db_url,timestamp):
         self.route_simple = route
         self.timestamp = timestamp
-        engine = create_engine(db_url, echo=True)
+        engine = create_engine(db_url, echo=False)
         Base.metadata.create_all(engine) # make sure the table exists every time an instance is created
