@@ -1,3 +1,10 @@
+# test notes
+
+#### start 22 sept 10:22pm
+`grabber_async.py -p -l` production mode using scheduler, dumping to compressed files and mysql.
+
+
+
 
 # debugging tips
 to start a mysql client inside a mysql docker container

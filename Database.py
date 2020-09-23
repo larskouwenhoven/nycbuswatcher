@@ -9,8 +9,8 @@ from Helpers import *
 Base = declarative_base()
 
 def create_table(db_url):
-    engine = create_engine(db_url, echo=False)  # future is this what's slowing us down?
-    Base.metadata.create_all(engine)  # make sure the table exists every time an instance is created #future is this what's slowing us down?
+    engine = create_engine(db_url, echo=False)
+    Base.metadata.create_all(engine)
 
 def get_db_url(dbparams):
     return 'mysql://{}:{}@{}/{}'.format(dbparams['dbuser'],dbparams['dbpassword'],dbparams['dbhost'],dbparams['dbname'])
@@ -45,7 +45,7 @@ def parse_buses(timestamp, route, data, db_url):
               'gtfs_block_id':['BlockRef']
               }
     buses = []
-    try: # future speedup. this can take up to 1/2 second per route!
+    try:
         for b in data['Siri']['ServiceDelivery']['VehicleMonitoringDelivery'][0]['VehicleActivity']:
             bus = BusObservation(route,db_url,timestamp)
             for k,v in lookup.items():
@@ -64,10 +64,6 @@ def parse_buses(timestamp, route, data, db_url):
     except KeyError: #no VehicleActivity?
         pass
     return buses
-
-
-
-
 
 
 class BusObservation(Base):

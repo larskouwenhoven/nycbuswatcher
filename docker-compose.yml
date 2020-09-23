@@ -16,7 +16,7 @@ services:
     volumes:
       - bus_data:/var/lib/mysql
 
-  python_app:
+  nycbusgrabber:
     build:
       context: .
       dockerfile: Dockerfile

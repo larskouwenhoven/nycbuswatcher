@@ -79,23 +79,27 @@ def dump_to_db(dbparams,timestamp, feeds):
             buses = db.parse_buses(timestamp, route_id, route_report.json(), db_url)
             for bus in buses:
                 session.add(bus)
-                num_buses = num_buses + 1 # bug not working
+                num_buses = num_buses + 1
         session.commit()
     return num_buses
 
 
-def dummy_scheduled_job(dbparams):
+def async_grab_and_store(dbparams):
 
-    print('dummy job ran with {}'.format(dbparams))
+    # print('dummy job ran with {}'.format(dbparams))
 
     ##################### MOVE TO A FUNCTION #####################
+    start = time.time()
 
     path_list = get_path_list()
 
     feeds = []
 
     async def grabber(s,a_path,route_id):
-        r = await s.get(path=a_path)
+        try:
+            r = await s.get(path=a_path) # bug need to trap connection errors here
+        except ValueError as e :
+            print ('{} from DNS issues'.format(e))
         feeds.append({route_id:r})
 
     async def main(path_list):
@@ -110,7 +114,7 @@ def dummy_scheduled_job(dbparams):
 
     # dump_to_screen(feeds)
     timestamp = dump_to_file(feeds)
-    num_buses = dump_to_db(dbparams,timestamp, feeds)  # bug broke?
+    num_buses = dump_to_db(dbparams,timestamp, feeds)
 
     end = time.time()
     print('Fetched {} buses on {} routes in {:2f} seconds to gzipped archive and mysql database.\n'.format(num_buses,len(feeds),(end - start)))
@@ -123,7 +127,6 @@ def dummy_scheduled_job(dbparams):
 
 
 if __name__ == "__main__":
-    start = time.time()
 
     # future this stuff shouldn't be hard-coded both here and in docker-compose.yml—load from a config.py or .env
     dbparams = {
@@ -136,6 +139,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='NYCbuswatcher grabber, fetches and stores current position for buses')
     parser.add_argument('-p', action="store_true", dest="production")
+    parser.add_argument('-l', action="store_true", dest="localhost", help="force localhost for dbparams")
     args = parser.parse_args()
 
     print('NYC MTA BusTime API Scraper v0.1. Anthony Townsend <atownsend@cornell.edu>')
@@ -144,11 +148,13 @@ if __name__ == "__main__":
         print('PRODUCTION MODE')
         connections=20
         dbparams['dbhost']='mysql_docker'
-
+        if args.localhost is True:
+            dbparams['dbhost'] = 'localhost'
+            connections = 5
         interval = 60
         print('Scanning on {}-second interval.'.format(interval))
         scheduler = BackgroundScheduler()
-        scheduler.add_job(dummy_scheduled_job, 'interval', seconds=interval,args=[dbparams])
+        scheduler.add_job(async_grab_and_store, 'interval', seconds=interval, args=[dbparams])
         scheduler.start()
         try:
             while True:
@@ -160,7 +166,7 @@ if __name__ == "__main__":
         print('development MODE')
         connections=5
         dbparams['dbhost']='localhost'
-        dummy_scheduled_job(dbparams)
+        async_grab_and_store(dbparams)
 
 
 
