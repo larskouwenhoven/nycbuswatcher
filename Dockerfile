@@ -1,6 +1,9 @@
 FROM continuumio/miniconda3:latest
 
-RUN apt-get update -y; apt-get upgrade -y
+RUN apt-get update -y; apt-get upgrade -y; apt-get install -y mysql-client
+
+ENV TZ=America/New_York
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 COPY environment.yml environment.yml
 
