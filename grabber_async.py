@@ -70,8 +70,9 @@ def dump_to_file(feeds):
     return timestamp
 
 def dump_to_db(dbparams,timestamp, feeds):
-
-    session,db_url = db.get_session(dbparams)
+    db_url=db.get_db_url(dbparams)
+    db.create_table(db_url)
+    session = db.get_session(dbparams)
     print('Dumping to {}'.format(db_url))
     num_buses = 0
     for route_bundle in feeds:

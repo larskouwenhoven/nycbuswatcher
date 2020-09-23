@@ -6,14 +6,22 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from Helpers import *
 
+Base = declarative_base()
+
+def create_table(db_url):
+    engine = create_engine(db_url, echo=False)  # future is this what's slowing us down?
+    Base.metadata.create_all(engine)  # make sure the table exists every time an instance is created #future is this what's slowing us down?
+
+def get_db_url(dbparams):
+    return 'mysql://{}:{}@{}/{}'.format(dbparams['dbuser'],dbparams['dbpassword'],dbparams['dbhost'],dbparams['dbname'])
+
 def get_session(dbparams):
-    db_url = 'mysql://{}:{}@{}/{}'.format(dbparams['dbuser'],dbparams['dbpassword'],dbparams['dbhost'],dbparams['dbname'])
-    engine = create_engine(db_url, echo=False)
+    engine = create_engine(get_db_url(dbparams), echo=False)
     Session = sessionmaker(bind=engine)
     session = Session()
-    return session,db_url
+    return session
 
-@timed
+# @timed
 def parse_buses(timestamp, route, data, db_url):
     lookup = {'route_long':['LineRef'],
               'direction':['DirectionRef'],
@@ -60,7 +68,7 @@ def parse_buses(timestamp, route, data, db_url):
 
 
 
-Base = declarative_base()
+
 
 class BusObservation(Base):
     __tablename__ = "buses"
@@ -100,5 +108,3 @@ class BusObservation(Base):
     def __init__(self,route,db_url,timestamp):
         self.route_simple = route
         self.timestamp = timestamp
-        engine = create_engine(db_url, echo=False) #future is this what's slowing us down?
-        Base.metadata.create_all(engine) # make sure the table exists every time an instance is created #future is this what's slowing us down?
