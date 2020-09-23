@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Date, DateTime, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
 
+from Helpers import *
 
 def get_session(dbparams):
     db_url = 'mysql://{}:{}@{}/{}'.format(dbparams['dbuser'],dbparams['dbpassword'],dbparams['dbhost'],dbparams['dbname'])
@@ -12,6 +13,7 @@ def get_session(dbparams):
     session = Session()
     return session,db_url
 
+@timed
 def parse_buses(timestamp, route, data, db_url):
     lookup = {'route_long':['LineRef'],
               'direction':['DirectionRef'],
@@ -35,7 +37,7 @@ def parse_buses(timestamp, route, data, db_url):
               'gtfs_block_id':['BlockRef']
               }
     buses = []
-    try:
+    try: # future speedup. this can take up to 1/2 second per route!
         for b in data['Siri']['ServiceDelivery']['VehicleMonitoringDelivery'][0]['VehicleActivity']:
             bus = BusObservation(route,db_url,timestamp)
             for k,v in lookup.items():
@@ -98,5 +100,5 @@ class BusObservation(Base):
     def __init__(self,route,db_url,timestamp):
         self.route_simple = route
         self.timestamp = timestamp
-        engine = create_engine(db_url, echo=False)
-        Base.metadata.create_all(engine) # make sure the table exists every time an instance is created
+        engine = create_engine(db_url, echo=False) #future is this what's slowing us down?
+        Base.metadata.create_all(engine) # make sure the table exists every time an instance is created #future is this what's slowing us down?
