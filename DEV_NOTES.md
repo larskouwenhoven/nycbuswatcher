@@ -1,4 +1,8 @@
 # debugging tips
+
+
+
+## connect to mysql inside a container
 to start a mysql client inside a mysql docker container
 
 docker exec -it nycbuswatcher_mysql_docker_1 mysql -uroot -p buses
