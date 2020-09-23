@@ -1,6 +1,6 @@
 FROM continuumio/miniconda3:latest
 
-RUN apt-get update -y; apt-get upgrade -y; apt-get install -y mysql-client
+RUN apt-get update -y; apt-get upgrade -y; apt-get install -y libmysqlclient-dev python-dev
 
 ENV TZ=America/New_York
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
