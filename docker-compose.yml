@@ -26,10 +26,7 @@ services:
       - bus_data:/app/data
     command:
       # tail -f /dev/null
-      # /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -r M1 -o file
-      # /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -r M1 -o sqlite
-      # /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -r M1 -o mysql
-      /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -p
+      /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber_async.py -p
 
 volumes:
   bus_data:
