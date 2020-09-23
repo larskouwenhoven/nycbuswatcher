@@ -7,14 +7,13 @@ import time
 import gzip
 import pickle
 
+from apscheduler.schedulers.background import BackgroundScheduler
+import trio
+from dotenv import load_dotenv
+
 import Database as db
 
-
-from dotenv import load_dotenv
 load_dotenv()
-
-import trio
-
 
 def get_path_list():
     path_list = []
@@ -85,6 +84,12 @@ def dump_to_db(dbparams,timestamp, feeds):
     return num_buses
 
 
+def dummy_scheduled_job(dbparams):
+
+    print('dummy job ran with {}'.format(dbparams))
+
+    return
+
 
 
 if __name__ == "__main__":
@@ -103,10 +108,6 @@ if __name__ == "__main__":
     parser.add_argument('-p', action="store_true", dest="production")
     args = parser.parse_args()
 
-
-    # # todo add scheduler
-    # from apscheduler.schedulers.background import BackgroundScheduler
-
     print('NYC MTA BusTime API Scraper v0.1. Anthony Townsend <atownsend@cornell.edu>')
 
     if args.production is True:
@@ -114,21 +115,23 @@ if __name__ == "__main__":
         connections=20
         dbparams['dbhost']='mysql_docker'
 
-        # interval = 60
-        # print('Scanning on {}-second interval.'.format(interval))
-        # scheduler = BackgroundScheduler()
-        # scheduler.add_job(get_buses, 'interval', seconds=interval,args=[dbparams])
-        # scheduler.start()
-        # try:
-        #     while True:
-        #         time.sleep(2)
-        # except (KeyboardInterrupt, SystemExit):
-        #     scheduler.shutdown()
+        interval = 60
+        print('Scanning on {}-second interval.'.format(interval))
+        scheduler = BackgroundScheduler()
+        scheduler.add_job(dummy_scheduled_job, 'interval', seconds=interval,args=[dbparams])
+        scheduler.start()
+        try:
+            while True:
+                time.sleep(2)
+        except (KeyboardInterrupt, SystemExit):
+            scheduler.shutdown()
 
     elif args.production is False: #run once and quit
         print('development MODE')
         connections=5
         dbparams['dbhost']='localhost'
+
+    ##################### MOVE TO A FUNCTION #####################
 
     path_list = get_path_list()
 
@@ -153,5 +156,7 @@ if __name__ == "__main__":
     num_buses = dump_to_db(dbparams,timestamp, feeds)  # bug broke?
 
     end = time.time()
-    print('\nFetched {} buses on {} routes in {:2f} seconds to uncompressed archive and database.'.format(num_buses,len(feeds),(end - start)))
+    print('Fetched {} buses on {} routes in {:2f} seconds to gzipped archive and mysql database.\n'.format(num_buses,len(feeds),(end - start)))
+
+    ###############################################################
 
