@@ -15,6 +15,7 @@ import Database as db
 
 load_dotenv()
 
+
 def get_path_list():
     path_list = []
     url = "http://bustime.mta.info/api/where/routes-for-agency/MTA%20NYCT.json?key=" + os.getenv("API_KEY")
@@ -39,11 +40,6 @@ def get_path_list():
 
     return path_list
 
-# def dump_to_screen(feeds):
-#     for route_bundle in feeds:
-#         for route_id, data in route_bundle.items():
-#             print (data.json())
-#     return
 
 def filepath():
     path = ("data/")
@@ -54,6 +50,7 @@ def filepath():
     else:
         pass
     return path
+
 
 def dump_to_file(feeds):
     timestamp = datetime.now()
@@ -67,6 +64,7 @@ def dump_to_file(feeds):
                 except:
                     raise Exception
     return timestamp
+
 
 def dump_to_db(dbparams,timestamp, feeds):
     db_url=db.get_db_url(dbparams)
@@ -86,13 +84,8 @@ def dump_to_db(dbparams,timestamp, feeds):
 
 def async_grab_and_store(dbparams):
 
-    # print('dummy job ran with {}'.format(dbparams))
-
-    ##################### MOVE TO A FUNCTION #####################
     start = time.time()
-
     path_list = get_path_list()
-
     feeds = []
 
     async def grabber(s,a_path,route_id):
@@ -112,15 +105,10 @@ def async_grab_and_store(dbparams):
 
     trio.run(main, path_list)
 
-    # dump_to_screen(feeds)
     timestamp = dump_to_file(feeds)
     num_buses = dump_to_db(dbparams,timestamp, feeds)
-
     end = time.time()
     print('Fetched {} buses on {} routes in {:2f} seconds to gzipped archive and mysql database.\n'.format(num_buses,len(feeds),(end - start)))
-
-    ###############################################################
-
 
     return
 
@@ -135,7 +123,6 @@ if __name__ == "__main__":
         'dbpassword': 'bustime',
         'dbhost':'localhost'
     }
-
 
     parser = argparse.ArgumentParser(description='NYCbuswatcher grabber, fetches and stores current position for buses')
     parser.add_argument('-p', action="store_true", dest="production")
