@@ -88,6 +88,36 @@ def dummy_scheduled_job(dbparams):
 
     print('dummy job ran with {}'.format(dbparams))
 
+    ##################### MOVE TO A FUNCTION #####################
+
+    path_list = get_path_list()
+
+    feeds = []
+
+    async def grabber(s,a_path,route_id):
+        r = await s.get(path=a_path)
+        feeds.append({route_id:r})
+
+    async def main(path_list):
+        from asks.sessions import Session
+        s = Session('http://bustime.mta.info', connections=connections)
+        async with trio.open_nursery() as n:
+            for path_bundle in path_list:
+                for route_id,path in path_bundle.items():
+                    n.start_soon(grabber, s, path, route_id )
+
+    trio.run(main, path_list)
+
+    # dump_to_screen(feeds)
+    timestamp = dump_to_file(feeds)
+    num_buses = dump_to_db(dbparams,timestamp, feeds)  # bug broke?
+
+    end = time.time()
+    print('Fetched {} buses on {} routes in {:2f} seconds to gzipped archive and mysql database.\n'.format(num_buses,len(feeds),(end - start)))
+
+    ###############################################################
+
+
     return
 
 
@@ -130,33 +160,7 @@ if __name__ == "__main__":
         print('development MODE')
         connections=5
         dbparams['dbhost']='localhost'
+        dummy_scheduled_job(dbparams)
 
-    ##################### MOVE TO A FUNCTION #####################
 
-    path_list = get_path_list()
-
-    feeds = []
-
-    async def grabber(s,a_path,route_id):
-        r = await s.get(path=a_path)
-        feeds.append({route_id:r})
-
-    async def main(path_list):
-        from asks.sessions import Session
-        s = Session('http://bustime.mta.info', connections=connections)
-        async with trio.open_nursery() as n:
-            for path_bundle in path_list:
-                for route_id,path in path_bundle.items():
-                    n.start_soon(grabber, s, path, route_id )
-
-    trio.run(main, path_list)
-
-    # dump_to_screen(feeds)
-    timestamp = dump_to_file(feeds)
-    num_buses = dump_to_db(dbparams,timestamp, feeds)  # bug broke?
-
-    end = time.time()
-    print('Fetched {} buses on {} routes in {:2f} seconds to gzipped archive and mysql database.\n'.format(num_buses,len(feeds),(end - start)))
-
-    ###############################################################
 
