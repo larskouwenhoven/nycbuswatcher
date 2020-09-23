@@ -7,7 +7,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 def get_session(dbparams):
     db_url = 'mysql://{}:{}@{}/{}'.format(dbparams['dbuser'],dbparams['dbpassword'],dbparams['dbhost'],dbparams['dbname'])
-    engine = create_engine(db_url, echo=True)
+    engine = create_engine(db_url, echo=False)
     Session = sessionmaker(bind=engine)
     session = Session()
     return session,db_url
@@ -68,7 +68,7 @@ class BusObservation(Base):
     route_long=Column(String(127))
     direction=Column(String(1))
     service_date=Column(String(31)) #future check inputs and convert to Date
-    trip_id=Column(String(31))
+    trip_id=Column(String(63))
     gtfs_shape_id=Column(String(31))
     route_short=Column(String(31))
     agency=Column(String(31))
@@ -84,7 +84,7 @@ class BusObservation(Base):
     progress_status=Column(String(31))
     occupancy=Column(String(31))
     vehicle_id=Column(String(31))
-    gtfs_block_id=Column(String(31))
+    gtfs_block_id=Column(String(63))
 
     def __repr__(self):
         output = ''

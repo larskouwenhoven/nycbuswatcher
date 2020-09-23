@@ -30,6 +30,7 @@ def get_path_list():
     except Exception as e: # response is bad, so load the last good pickle
         with open((filepath() + 'routes-for-agency.pickle'), "rb") as pickle_file:
             response = pickle.load(pickle_file)
+        print("Route URLs loaded from pickle cache.")
     finally:
         routes = response.json()
         print('Found {} routes. Fetching current positions with ASYNCHRONOUS requests...'.format(len(routes['data']['list'])))
@@ -39,11 +40,11 @@ def get_path_list():
 
     return path_list
 
-def dump_to_screen(feeds):
-    for route_bundle in feeds:
-        for route_id, data in route_bundle.items():
-            print (data.json())
-    return
+# def dump_to_screen(feeds):
+#     for route_bundle in feeds:
+#         for route_id, data in route_bundle.items():
+#             print (data.json())
+#     return
 
 def filepath():
     path = ("data/")
@@ -56,25 +57,31 @@ def filepath():
     return path
 
 def dump_to_file(feeds):
-    timestamp_pretty = datetime.now().strftime("%Y-%m-%dT_%H:%M:%S.%f")
+    timestamp = datetime.now()
+    timestamp_pretty = timestamp.strftime("%Y-%m-%dT_%H:%M:%S.%f")
     for route_bundle in feeds:
         for route_id,route_report in route_bundle.items():
             dumpfile=(filepath() + route_id.split()[1] + '_' + timestamp_pretty +'.gz')
             with gzip.open(dumpfile, 'wt', encoding="ascii") as zipfile:
-                json.dump(route_report.json(), zipfile)
+                try:
+                    json.dump(route_report.json(), zipfile)
+                except:
+                    raise Exception
     return timestamp
 
 def dump_to_db(dbparams,timestamp, feeds):
 
     session,db_url = db.get_session(dbparams)
     print('Dumping to {}'.format(db_url))
+    num_buses = 0
     for route_bundle in feeds:
         for route_id,route_report in route_bundle.items():
             buses = db.parse_buses(timestamp, route_id, route_report.json(), db_url)
             for bus in buses:
                 session.add(bus)
+                num_buses = num_buses + 1 # bug not working
         session.commit()
-    return
+    return num_buses
 
 
 
@@ -142,8 +149,8 @@ if __name__ == "__main__":
 
     # dump_to_screen(feeds)
     timestamp = dump_to_file(feeds)
-    dump_to_db(dbparams,timestamp, feeds)
+    num_buses = dump_to_db(dbparams,timestamp, feeds)  # bug broke?
 
     end = time.time()
-    print('\nFetched {} routes in {:2f} seconds to uncompressed archive and database.'.format(len(feeds),(end - start)))
+    print('\nFetched {} buses on {} routes in {:2f} seconds to uncompressed archive and database.'.format(num_buses,len(feeds),(end - start)))
 
