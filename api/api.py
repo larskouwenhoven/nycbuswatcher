@@ -62,6 +62,13 @@ class HistoryByDate(Resource):
 
 api.add_resource(HistoryByDate, '/api/v1/nyc/routes/<string:route_id>/<string:date>')
 
+
+# todo add additional routes
+# todo find out what kepler wants from API and start to build towards it
+
+
+
+
 # quick diagnostic for how many records per day
 # SELECT service_date, COUNT(*) FROM buses GROUP BY service_date;
 #
