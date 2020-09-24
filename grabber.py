@@ -116,7 +116,7 @@ def async_grab_and_store(dbparams):
 
 if __name__ == "__main__":
 
-    # future this stuff shouldn't be hard-coded both here and in docker-compose.yml—load from a config.py or .env
+    # future this stuff shouldn't be hard-coded in 3 places: here, api.py, docker-compose.yml—load from a config.py or .env
     dbparams = {
         'dbname': 'buses',
         'dbuser': 'nycbuswatcher',

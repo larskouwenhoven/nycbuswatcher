@@ -26,7 +26,7 @@ services:
       - bus_data:/app/data
     command:
       # tail -f /dev/null
-      /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber_async.py -p
+      /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -p
 
 volumes:
   bus_data:

@@ -43,8 +43,8 @@ Fetches list of active routes from OneBusAway API via asynchronous http requests
     ```
 3. run
     ```python
-    python grabber_async.py # development: run once and quit
-    python grabber_async.py -p # production: runs in infinite loop at set interval using scheduler (hardcoded for now)
+    python grabber.py # development: run once and quit
+    python grabber.py -p # production: runs in infinite loop at set interval using scheduler (hardcoded for now)
     ```
 
 
@@ -72,6 +72,8 @@ Feel free to jump in and submit some pull requests.
         - The stops or routes near a given location
 
 ## little
-
 - bundle and archive the compressed files in /data for cold storage (to avoid future issues on huge # of files)
 - add ability to (batch) re-process archived files through parser, db_dump
+
+## not sure
+- integrate/automate push daily CSV to qri.io
