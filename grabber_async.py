@@ -60,9 +60,9 @@ def dump_to_file(feeds):
             dumpfile=(filepath() + route_id.split()[1] + '_' + timestamp_pretty +'.gz')
             with gzip.open(dumpfile, 'wt', encoding="ascii") as zipfile:
                 try:
-                    json.dump(route_report.json(), zipfile)
+                    json.dump(route_report.json(), zipfile) # bug getting errors here (maybe empty route_report?)
                 except:
-                    raise Exception
+                    pass # if error, dont write and return
     return timestamp
 
 
