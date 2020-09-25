@@ -41,7 +41,7 @@ def parse_buses(timestamp, route, data, db_url):
               'progress_rate': ['ProgressRate'],
               'progress_status': ['ProgressStatus'],
               'occupancy': ['Occupancy'],
-              'vehicle_id':['VehicleRef'],
+              'vehicle_id':['VehicleRef'], #todo might want to truncate first 4 chars of this as well
               'gtfs_block_id':['BlockRef']
               }
     buses = []
