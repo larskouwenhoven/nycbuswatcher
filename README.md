@@ -52,9 +52,6 @@ Fetches list of active routes from OneBusAway API via asynchronous http requests
 Feel free to jump in and submit some pull requests. 
 
 ## big
-- internal api
-    - Deploy an api using flask or FastAPI to expose database for our own dashboard and applications.
-
 - front end / web dashboard
     - geometry: OneBusAway API ( don't handle/store the GTFS locally)
     - data: our internal API, historical location + arrival

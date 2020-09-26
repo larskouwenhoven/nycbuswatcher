@@ -1,3 +1,10 @@
+# todo
+
+1. finish and test geojson bundler for TripAPI
+2. build out another API for bulk grab to front end... no restrictions on date, route, etc but fewer fields
+3. build a couple of endpoints for starter views, e.g. what the front-end needs to load to render 1st view (e.g. all the buses in the last hour? day? week?)
+
+
 # debugging tips
 
 

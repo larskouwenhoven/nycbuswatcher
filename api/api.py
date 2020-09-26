@@ -34,7 +34,15 @@ def query_builder(parameters):
     query_suffix=query_suffix[:-4] # strip tailing ' AND'
     return query_suffix
 
-# after https://geoffboeing.com/2015/10/exporting-python-data-geojson/
+def keplerize_results(query): # bug am i reversing the unpack_query_results process?
+    fields = [{"name":x} for x in dict.keys(query[0])]
+    rows = []
+    for k,v in query.items():
+        pass # todo unpack the query results into a list of lists
+        rows.append('something',454.232,5454.3434)
+    kepler_bundle = {"fields": fields, "rows": rows }
+    return kepler_bundle
+
 def results_to_geojson_Points(results):
     geojson = {'type': 'FeatureCollection', 'features': []}
     for row in results:
@@ -49,24 +57,24 @@ def results_to_geojson_Points(results):
     return geojson
 
 #--- LIST ALL UNIQUE ROUTES IN HISTORY ---#
-class Routes(Resource):
+class AllKnownRoutes(Resource):
     def get(self):
         conn = db_connect.connect()  # connect to database
         query = conn.execute("SELECT DISTINCT route_short FROM buses")
         results = {'routes': [i[0] for i in query.cursor.fetchall()]}
         return jsonify(results)
 
-# #--- ALL OBSERVATIONS IN HISTORY FOR SINGLE ROUTE ---#
-# class FullHistory(Resource):
-#     def get(self,route_id):
-#         conn = db_connect.connect()  # connect to database
-#         query = conn.execute("SELECT * FROM buses WHERE route_short='{}'".format(route_id))
-#         # result = {'observations': query.cursor.fetchall()}
-#         results = {'observations': unpack_query_results(query)}
-#         return jsonify(results) # todo geojsonized this into a list or dict of GEOJSON Points
+#--- LIST ALL UNIQUE ROUTES IN HISTORY ---#
+class LiveMap(Resource):
+    def get(self):
+        conn = db_connect.connect()
+        query_suffix = query_builder(request.args)
+        query = conn.execute("SELECT * FROM buses WHERE {}".format(query_suffix )) #todo collect only buses active on road NOW
+        results = {'observations': unpack_query_results(query)}
+        return results_to_geojson_Points(results)
 
 
-#--- ALL OBSERVATIONS ON A SINGLE TRIP, IN GEOJSON ---#
+#--- ALL OBSERVATIONS FROM ALL ACTIVE TRIPS, IN GEOJSON ---#
 
 class TripQuerySchema(Schema):
     service_date = fields.Str(required=True)
@@ -74,29 +82,32 @@ class TripQuerySchema(Schema):
 
 trip_schema = TripQuerySchema()
 
-class TripAPI(Resource): #todo all points for a specific trip  returned as a GEOJSON LineString
+class TripAPI(Resource):
+    def get(self):
+        errors = trip_schema.validate(request.args)
+        if errors:
+            abort(400, str(errors))
+        conn = db_connect.connect()
+        query_suffix = query_builder(request.args)
+        query = conn.execute("SELECT * FROM buses WHERE {}".format(query_suffix ))
+        results = {'observations': unpack_query_results(query)}
+        return results_to_geojson_Points(results)
+
+class KeplerizedTripAPI(Resource): #todo all points for a specific trip
     def get(self):
         errors = trip_schema.validate(request.args)
         if errors:
             abort(400, str(errors))
         conn = db_connect.connect()  # connect to database
-
-        query_suffix = query_builder(request.args)
-
-        query = conn.execute("SELECT * FROM buses WHERE {}".format(query_suffix ))
-        results = {'observations': unpack_query_results(query)}
-        return jsonify(results)
-        # return results_to_geojson_LineString(results)
-
-
+        query = conn.execute("SELECT * FROM buses WHERE {}".format(query_builder(request.args) ))
+        return jsonify(keplerize_results(unpack_query_results(query))) # bug
 
 
 #--- URLS ---#
-api.add_resource(Routes, '/api/v1/nyc/routes')
+api.add_resource(AllKnownRoutes, '/api/v1/nyc/routes')
+api.add_resource(LiveMap, '/api/v1/nyc/livemap')
 api.add_resource(TripAPI, '/api/v1/nyc/trips', endpoint='trips')
-
-
+api.add_resource(KeplerizedTripAPI, '/api/v1/nyc/trips/kepler', endpoint='kepler')
 
 if __name__ == '__main__':
-    # app.run(port='5002')
     app.run(debug=True)
