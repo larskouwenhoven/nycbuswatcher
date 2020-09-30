@@ -4,7 +4,25 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Date, DateTime, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
 
-from Helpers import *
+# # uncomment for help with optimizations
+# decorate functions with @timed to print time for execution
+#
+# import time
+#
+# def timed(method):
+#     def timed(*args, **kw):
+#         ts = time.time()
+#         result = method(*args, **kw)
+#         te = time.time()
+#
+#         if 'log_time' in kw:
+#             name = kw.get('log_name', method.__name__.upper())
+#             kw['log_time'][name] = int((te - ts) * 1000)
+#         else:
+#             print ('{}  {:2.2f} ms'.format(method.__name__, (te - ts) * 1000))
+#         return result
+#     return timed
+
 
 Base = declarative_base()
 

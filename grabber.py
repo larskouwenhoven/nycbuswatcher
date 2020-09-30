@@ -16,6 +16,8 @@ import Database as db
 load_dotenv()
 
 
+
+
 def get_path_list():
     path_list = []
     url = "http://bustime.mta.info/api/where/routes-for-agency/MTA%20NYCT.json?key=" + os.getenv("API_KEY")
@@ -129,7 +131,7 @@ if __name__ == "__main__":
     parser.add_argument('-l', action="store_true", dest="localhost", help="force localhost for dbparams")
     args = parser.parse_args()
 
-    print('NYC MTA BusTime API Scraper v0.1. Anthony Townsend <atownsend@cornell.edu>')
+    print('NYC MTA BusTime API Scraper v1.0. October 2020. Anthony Townsend <atownsend@cornell.edu>')
 
     if args.production is True:
         print('PRODUCTION MODE')
