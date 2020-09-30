@@ -17,6 +17,7 @@ dependencies:
   - dnspython=2.0.0=py_0
   - flask=1.1.2=pyh9f0ad1d_0
   - flask-restful=0.3.8=py_0
+  - geojson=2.5.0=py_0
   - idna=2.10=pyh9f0ad1d_0
   - itsdangerous=1.1.0=py_0
   - jinja2=2.11.2=pyh9f0ad1d_0
@@ -62,6 +63,7 @@ dependencies:
   - pip:
     - anyio==1.4.0
     - asks==2.4.10
+    - bootstrap-flask==1.5
     - h11==0.10.0
     - mysqlclient==2.0.1
 prefix: /opt/bin/anaconda3/envs/nycbuswatcher2
