@@ -28,22 +28,21 @@ services:
       # tail -f /dev/null
       /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -p
 
-#  # todo test and debug flask build
-#  web:
-#    build:
-#      context: ./api
-#    volumes:
-#      - ./api:/api
-#    ports:
-#      - "80:80"
-#    environment:
-#      - FLASK_APP=api.py
-#      - FLASK_DEBUG=1
-#      - 'RUN=flask run --host=0.0.0.0 --port=80'
-#    command: flask run --host=0.0.0.0 --port=80
-#    # Infinite loop, to keep it alive, for debugging
-#    # command: bash -c "while true; do echo 'sleeping...' && sleep 10; done"
-
+  # todo test and debug flask build
+  web:
+    build:
+      context: ./api
+    volumes:
+      - ./api:/api
+    ports:
+      - "80:80"
+    environment:
+      - FLASK_APP=api.py
+      - FLASK_DEBUG=1
+      - 'RUN=flask run --host=0.0.0.0 --port=80'
+    command: flask run --host=0.0.0.0 --port=80
+    # Infinite loop, to keep it alive, for debugging
+    # command: bash -c "while true; do echo 'sleeping...' && sleep 10; done"
 
 
 volumes:

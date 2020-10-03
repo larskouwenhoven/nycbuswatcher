@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}
+    {{ super() }}
+    <title>NYCBuswatcher</title>
+{% endblock %}
+{% block head %}
+
+  <style type="text/css">
+    .important { color: #336699; }
+  </style>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css" rel="stylesheet" />
+  {{ super() }}
+
+{% endblock %}
+{% block content %}
+
+
+<div class="container pt-5">
+<div class="row">
+</div>
+
+  <div class="row">
+    <div class="col">
+     <h1>Index</h1>
+        <p class="important">
+    Welcome on my awesome homepage.
+
+    </div>
+
+  </div>
+
+   <div class="row" id="map"></div>
+
+
+
+
+</div>
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiYml0c2FuZGF0b21zIiwiYSI6ImNrZm9vYTNkdjAzYm4yeXJ2cmh2cGI4cXoifQ.RYsGUuXDe202Mk4xWBli6Q';
+
+    var map = new mapboxgl.Map({
+        container: 'map', // container id
+        style: 'mapbox://styles/mapbox/streets-v11', // style URL
+        center: [-74.5, 40], // starting position [lng, lat]
+        zoom: 9 // starting zoom
+        });
+
+    // map.addSource('buses', {
+    //      type: 'geojson',
+    //      data: '{{ url_for(request.endpoint) }}/api/v1/nyc/livemap'
+    //    });
+
+
+</script>
+
+{% endblock %}
