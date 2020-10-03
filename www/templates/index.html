@@ -78,7 +78,7 @@
             }
             };
             request.send();
-            }, 2000);
+            }, 60000); // refresh every n milliseconds
 
             map.addSource('observations', { type: 'geojson', data: url });
             map.addLayer({
@@ -87,7 +87,8 @@
                 'source': 'observations',
                 'paint': {
                 // make circles larger as the user zooms from z12 to z22
-                'circle-radius': 2
+                'circle-radius': 2,
+                    'circle-color': '#0039A6'
                         },
 
             });

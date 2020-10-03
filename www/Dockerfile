@@ -10,5 +10,5 @@ RUN /usr/bin/pip3 install flask flask-restful marshmallow
 
 # todo load env file that remaps the db hostname
 
-COPY . /api
+COPY . /app
 
