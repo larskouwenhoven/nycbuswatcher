@@ -46,6 +46,14 @@ api = Api(app)
 def unpack_query_results(query):
     return [dict(zip(tuple(query.keys()), i)) for i in query.cursor]
 
+def sparse_unpack_for_livemap(query):
+    unpacked = [dict(zip(tuple(query.keys()), i)) for i in query.cursor]
+    #todo return a much smaller
+    sparse_results = []
+    for row in unpacked:
+        sparse_results.append('something')
+    return unpacked
+
 def query_builder(parameters):
     query_suffix = ''
     for field, value in parameters.items():
@@ -74,7 +82,7 @@ def results_to_FeatureCollection(results):
         for k, v in row.items():
             if isinstance(v, (datetime, date)):
                 v = v.isoformat()
-            print('k: {} v: {}'.format(k,v))
+            # print('k: {} v: {}'.format(k,v))
             feature['properties'][k] = v
         geojson['features'].append(feature)
     return geojson
@@ -117,6 +125,7 @@ class LiveMap(Resource):
         conn = db_connect.connect()
         query = conn.execute("SELECT * FROM buses WHERE timestamp >= NOW() - INTERVAL 60 SECOND;") #todo refine this to smooth out
         results = {'observations': unpack_query_results(query)}
+        #todo change results = {'observations': sparse_unpack_for_livemap(query)}
         geojson = results_to_FeatureCollection(results)
         return geojson
 
@@ -186,12 +195,19 @@ api.add_resource(SystemAPI, '/api/v1/nyc/buses', endpoint='buses') #todo test /b
 
 @app.route('/')
 def index():
-    return render_template('index.html', title='NYCBusWatcher')
+    return render_template('index.html')
 
 @app.route('/map')
 def map():
-    return render_template('map.html', title='NYCBusWatcher')
+    return render_template('map.html')
 
+@app.route('/why')
+def why():
+    return render_template('why.html')
+
+@app.route('/who')
+def who():
+    return render_template('who.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
