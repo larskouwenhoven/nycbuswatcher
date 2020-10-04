@@ -21,7 +21,7 @@ api_url_stem="/api/v1/nyc/livemap"
 
 
 from datetime import date, datetime
-from flask import Flask, request, jsonify, abort
+from flask import request, jsonify, abort
 from flask_restful import Resource, Api
 
 from Database import *

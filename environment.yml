@@ -1,4 +1,4 @@
-name: nycbuswatcher2
+name: nycbuswatcher
 channels:
   - conda-forge
   - defaults

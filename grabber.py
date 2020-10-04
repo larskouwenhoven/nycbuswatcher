@@ -11,12 +11,9 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import trio
 from dotenv import load_dotenv
 
-import Database as db
+from app import Database as db
 
 load_dotenv()
-
-
-
 
 def get_path_list():
     path_list = []
@@ -35,29 +32,12 @@ def get_path_list():
         print("Route URLs loaded from pickle cache.")
     finally:
         routes = response.json()
-        print('Found {} routes. Fetching current positions with ASYNCHRONOUS requests...'.format(len(routes['data']['list'])))
+        print('Found {} routes.'.format(len(routes['data']['list'])))
 
     for route in routes['data']['list']:
         path_list.append({route['id']:"/api/siri/vehicle-monitoring.json?key={}&VehicleMonitoringDetailLevel=calls&LineRef={}".format(os.getenv("API_KEY"), route['id'])})
 
     return path_list
-
-
-def fetch_route_geometries():
-    path_list=get_path_list()
-    for r in path_list:
-        for k,v in r.items():
-            url = ("http://bustime.mta.info/api/where/shape/{}.json?key={}".format(k,os.getenv("API_KEY")))
-            try:
-                response = requests.get(url, timeout=30)
-            except:
-                pass
-
-
-
-
-    return
-
 
 
 def filepath():
@@ -79,7 +59,7 @@ def dump_to_file(feeds):
             dumpfile=(filepath() + route_id.split()[1] + '_' + timestamp_pretty +'.gz')
             with gzip.open(dumpfile, 'wt', encoding="ascii") as zipfile:
                 try:
-                    json.dump(route_report.json(), zipfile) # bug getting errors here (maybe empty route_report?)
+                    json.dump(route_report.json(), zipfile)
                 except:
                     pass # if error, dont write and return
     return timestamp
@@ -161,7 +141,6 @@ if __name__ == "__main__":
         print('Scanning on {}-second interval.'.format(interval))
         scheduler = BackgroundScheduler()
         scheduler.add_job(async_grab_and_store, 'interval', seconds=interval, args=[dbparams])
-        scheduler.add_job(fetch_route_geometries(), hours=24)
         scheduler.start()
         try:
             while True:
