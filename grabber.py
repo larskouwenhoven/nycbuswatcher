@@ -12,8 +12,7 @@ import trio
 from dotenv import load_dotenv
 
 from app import Database as db
-
-load_dotenv()
+from config import config
 
 def get_path_list():
     path_list = []
@@ -51,6 +50,19 @@ def filepath():
     return path
 
 
+def get_db_args():
+
+    if args.localhost is True: #n.b. this ignores what's in config/development.py
+        dbhost = 'localhost'
+    else:
+        dbhost = config['dbhost']
+
+    return (config.config['dbuser'],
+            config.config['dbpassword'],
+            dbhost,
+            config.config['dbname']
+            )
+
 def dump_to_file(feeds):
     timestamp = datetime.now()
     timestamp_pretty = timestamp.strftime("%Y-%m-%dT_%H:%M:%S.%f")
@@ -65,10 +77,10 @@ def dump_to_file(feeds):
     return timestamp
 
 
-def dump_to_db(dbparams,timestamp, feeds):
-    db_url=db.get_db_url(dbparams)
+def dump_to_db(timestamp, feeds):
+    db_url=db.get_db_url(*get_db_args())
     db.create_table(db_url)
-    session = db.get_session(dbparams)
+    session = db.get_session(*get_db_args())
     print('Dumping to {}'.format(db_url))
     num_buses = 0
     for route_bundle in feeds:
@@ -81,7 +93,7 @@ def dump_to_db(dbparams,timestamp, feeds):
     return num_buses
 
 
-def async_grab_and_store(dbparams):
+def async_grab_and_store():
 
     start = time.time()
     path_list = get_path_list()
@@ -96,7 +108,7 @@ def async_grab_and_store(dbparams):
 
     async def main(path_list):
         from asks.sessions import Session
-        s = Session('http://bustime.mta.info', connections=connections)
+        s = Session('http://bustime.mta.info', connections=config.config['http_connections'])
         async with trio.open_nursery() as n:
             for path_bundle in path_list:
                 for route_id,path in path_bundle.items():
@@ -105,7 +117,7 @@ def async_grab_and_store(dbparams):
     trio.run(main, path_list)
 
     timestamp = dump_to_file(feeds)
-    num_buses = dump_to_db(dbparams,timestamp, feeds)
+    num_buses = dump_to_db(timestamp, feeds)
     end = time.time()
     print('Fetched {} buses on {} routes in {:2f} seconds to gzipped archive and mysql database.\n'.format(num_buses,len(feeds),(end - start)))
 
@@ -115,32 +127,21 @@ def async_grab_and_store(dbparams):
 
 if __name__ == "__main__":
 
-    # future this stuff shouldn't be hard-coded in 3 places: here, api.py, docker-compose.yml—load from a config.py or .env
-    dbparams = {
-        'dbname': 'buses',
-        'dbuser': 'nycbuswatcher',
-        'dbpassword': 'bustime',
-        'dbhost':'localhost'
-    }
+    print('NYC MTA BusTime API Scraper v1.0. October 2020. Anthony Townsend <atownsend@cornell.edu>')
+    print('mode: {}'.format(os.environ['PYTHON_ENV']))
 
     parser = argparse.ArgumentParser(description='NYCbuswatcher grabber, fetches and stores current position for buses')
-    parser.add_argument('-p', action="store_true", dest="production")
-    parser.add_argument('-l', action="store_true", dest="localhost", help="force localhost for dbparams")
+    parser.add_argument('-l', action="store_true", dest="localhost", help="force localhost for production mode")
     args = parser.parse_args()
 
-    print('NYC MTA BusTime API Scraper v1.0. October 2020. Anthony Townsend <atownsend@cornell.edu>')
+    load_dotenv()
 
-    if args.production is True:
-        print('PRODUCTION MODE')
-        connections=20
-        dbparams['dbhost']='mysql_docker'
-        if args.localhost is True:
-            dbparams['dbhost'] = 'localhost'
-            connections = 5
+    # PRODUCTION = start main loop
+    if os.environ['PYTHON_ENV'] == "production":
         interval = 60
         print('Scanning on {}-second interval.'.format(interval))
         scheduler = BackgroundScheduler()
-        scheduler.add_job(async_grab_and_store, 'interval', seconds=interval, args=[dbparams])
+        scheduler.add_job(async_grab_and_store, 'interval', seconds=interval)
         scheduler.start()
         try:
             while True:
@@ -148,11 +149,9 @@ if __name__ == "__main__":
         except (KeyboardInterrupt, SystemExit):
             scheduler.shutdown()
 
-    elif args.production is False: #run once and quit
-        print('development MODE')
-        connections=5
-        dbparams['dbhost']='localhost'
-        async_grab_and_store(dbparams)
+    # DEVELOPMENT = run once and quit
+    elif os.environ['PYTHON_ENV'] == "development":
+        async_grab_and_store()
 
 
 

@@ -1,24 +1,30 @@
 # todo
 
-1. system API
-    - bulk query
+1. finish sorting out the new config architcture for production/development split
+    - follow [this](https://softwareengineering.stackexchange.com/questions/342788/best-way-to-handle-dev-test-prod-variables-in-python)
+        - x create `config` dir
+        - x create several config files
+        - make changes to grabber.py to read config from there
+        - make changes to app.py
+        - make changes to docker-compose.yml (might need to keep the database settings in .env? https://docs.docker.com/compose/environment-variables/)
+
+2. debug docker flask --> db connection
+    - did the above fix it?
+    - database connection not working (grabber container database connection working OK, so it must be the hostname or missing libraries?)
+
+3. work out lib import path issues in the project generally (what are best practices?)   
+   
+4. API
+    - system API (bulk query)
         - requires a datetime range in in ISO 8601 like `/trips&start=2020-08-11T14:42:00+00:00&end=2020-08-11T15:12:00+00:00` per [urschrei](https://twitter.com/urschrei/status/1309473665789165569)
         - use query filter to enforce a maximum interval of 1 hour? (for now)
         - returns all fields (for now)
-
-2. front end
-    - base template and index.html template (using bootstrap-flask)
-    - JS map app
-        - street base map (from Stamen?)
-        - points layer, geojson from /api/v1/nyc/livemap (last 60 seconds) — mapbox [tutorial](https://docs.mapbox.com/mapbox-gl-js/example/geojson-markers/)
-
-3. keplerized endpoints
+    - keplerized endpoints
 
 
-# debugging reference
+### debugging reference
 
-### database
-*connect to mysql inside a container* to start a mysql client inside a mysql docker container
+s*connect to mysql inside a container* to start a mysql client inside a mysql docker container
 
 ```
 docker exec -it nycbuswatcher_mysql_docker_1 mysql -uroot -p buses

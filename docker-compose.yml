@@ -5,7 +5,7 @@ version: '3'
 
 services:
 
-  mysql_docker:
+  db:
     image: mysql:5.7
     restart: always
     environment:   # Set up mysql database name and password
@@ -21,14 +21,13 @@ services:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - mysql_docker
+      - db
     volumes:
       - bus_data:/app/data
     command:
       # tail -f /dev/null
-      /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py -p
+      /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py
 
-  # todo test and debug flask build
   web:
     build:
       context: ./app

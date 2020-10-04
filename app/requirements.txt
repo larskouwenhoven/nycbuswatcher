@@ -1,0 +1,7 @@
+flask
+flask-restful
+marshmallow
+python-dotenv
+sqlalchemy
+mysqlclient
+mysql-connector-python

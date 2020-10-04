@@ -1,44 +1,34 @@
 import os
+from datetime import date, datetime
 
-# https://bootstrap-flask.readthedocs.io/en/stable/
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify, abort
+from flask_restful import Resource, Api
+from marshmallow import Schema, fields
 
-app = Flask(__name__)
+from sqlalchemy import create_engine
 
+from Database import *
 
 from dotenv import load_dotenv
-
 load_dotenv()
 api_key = os.getenv("MAPBOX_API_KEY")
 api_url_stem="/api/v1/nyc/livemap"
 
-#-----------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------
+from config import config
 
-# adapted from https://www.codementor.io/@sagaragarwal94/building-a-basic-restful-api-in-python-58k02xsiq
+#-----------------------------------------------------------------------------------------
+# sources
+#
+# api approach adapted from https://www.codementor.io/@sagaragarwal94/building-a-basic-restful-api-in-python-58k02xsiq
 # query parameter handling after https://stackoverflow.com/questions/30779584/flask-restful-passing-parameters-to-get-request
+#-----------------------------------------------------------------------------------------
 
 
-from datetime import date, datetime
-from flask import request, jsonify, abort
-from flask_restful import Resource, Api
+#--------------- INITIALIZATION ---------------
 
-from Database import *
-from marshmallow import Schema, fields
-
-dbparams = {
-    'dbname': 'buses',
-    'dbuser': 'nycbuswatcher',
-    'dbpassword': 'bustime',
-    'dbhost': 'localhost'
-}
-
-
-db_connect = create_engine(get_db_url(dbparams))
-
+db_connect = create_engine(get_db_url(config['dbuser'],config['dbpassword'],config['dbhost'],config['dbname'])) # todo need a production override for this to set to 'localhost' for debugging?
+app = Flask(__name__)
 api = Api(app)
-
 
 
 #--------------- HELPER FUNCTIONS ---------------
@@ -70,7 +60,6 @@ def query_builder(parameters):
     query_suffix=query_suffix[:-4] # strip tailing ' AND'
     return query_suffix
 
-# manually, per geoff boeing method
 def results_to_FeatureCollection(results):
     geojson = {'type': 'FeatureCollection', 'features': []}
     for row in results['observations']:
@@ -82,7 +71,6 @@ def results_to_FeatureCollection(results):
         for k, v in row.items():
             if isinstance(v, (datetime, date)):
                 v = v.isoformat()
-            # print('k: {} v: {}'.format(k,v))
             feature['properties'][k] = v
         geojson['features'].append(feature)
     return geojson

@@ -6,9 +6,11 @@ RUN apt-get update -y; apt-get upgrade -y; apt-get install -y python3-pip
 ENV TZ=America/New_York
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN /usr/bin/pip3 install flask flask-restful marshmallow python-dotenv sqlalchemy mysqlclient mysql-connector-python
 
-# todo load env file that remaps the db hostname
+COPY requirements.txt ./
+
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 COPY . /app
 
