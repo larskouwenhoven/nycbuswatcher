@@ -1,18 +1,12 @@
 # todo
 
-1. finish sorting out the new config architcture for production/development split
-    - follow [this](https://softwareengineering.stackexchange.com/questions/342788/best-way-to-handle-dev-test-prod-variables-in-python)
-        - x create `config` dir
-        - x create several config files
-        - make changes to grabber.py to read config from there
-        - make changes to app.py
-        - make changes to docker-compose.yml (might need to keep the database settings in .env? https://docs.docker.com/compose/environment-variables/)
-
-2. debug docker flask --> db connection
-    - did the above fix it?
-    - database connection not working (grabber container database connection working OK, so it must be the hostname or missing libraries?)
-
-3. work out lib import path issues in the project generally (what are best practices?)   
+1. debug docker flask --> db connection
+    - any more changes to app.py to reflect the new production/dev env scheme?
+    - build the docker stack and check it.... working? (check hostnames everywhere)
+    
+3. project refactor
+    - once everything is working, mark a release 
+    - work out lib import path issues in the project generally (what are best practices?)   
    
 4. API
     - system API (bulk query)

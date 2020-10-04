@@ -19,6 +19,7 @@ ENV CONDA_PYTHON_EXE /opt/conda/bin/python
 ENV CONDA_PROMPT_MODIFIER (nycbuswatcher)
 ENV CONDA_DEFAULT_ENV nycbuswatcher
 ENV PATH /opt/conda/envs/nycbuswatcher/bin:/opt/conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV PYTHON_ENV="production"
 
 # copy repo
 WORKDIR /app

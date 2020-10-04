@@ -54,8 +54,10 @@ def get_db_args():
 
     if args.localhost is True: #n.b. this ignores what's in config/development.py
         dbhost = 'localhost'
+    elif os.environ['PYTHON_ENV'] == "development":
+        dbhost = 'localhost'
     else:
-        dbhost = config['dbhost']
+        dbhost = config.config['dbhost']
 
     return (config.config['dbuser'],
             config.config['dbpassword'],
