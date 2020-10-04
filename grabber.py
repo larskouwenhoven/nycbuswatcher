@@ -43,6 +43,23 @@ def get_path_list():
     return path_list
 
 
+def fetch_route_geometries():
+    path_list=get_path_list()
+    for r in path_list:
+        for k,v in r.items():
+            url = ("http://bustime.mta.info/api/where/shape/{}.json?key={}".format(k,os.getenv("API_KEY")))
+            try:
+                response = requests.get(url, timeout=30)
+            except:
+                pass
+
+
+
+
+    return
+
+
+
 def filepath():
     path = ("data/")
     check = os.path.isdir(path)
@@ -144,6 +161,7 @@ if __name__ == "__main__":
         print('Scanning on {}-second interval.'.format(interval))
         scheduler = BackgroundScheduler()
         scheduler.add_job(async_grab_and_store, 'interval', seconds=interval, args=[dbparams])
+        scheduler.add_job(fetch_route_geometries(), hours=24)
         scheduler.start()
         try:
             while True:
