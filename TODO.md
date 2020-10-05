@@ -1,8 +1,8 @@
 # todo
 
 1. debug docker flask --> db connection
-    - any more changes to app.py to reflect the new production/dev env scheme?
-    - build the docker stack and check it.... working? (check hostnames everywhere)
+    - is the time/timezone different in the different containers?
+    - seems like it might just be a problem with the NOW - 60 seconds part of the query?
 
 2. route maps for front end
     - combine them into a single file?
@@ -28,7 +28,7 @@
 s*connect to mysql inside a container* to start a mysql client inside a mysql docker container
 
 ```
-docker exec -it nycbuswatcher_mysql_docker_1 mysql -uroot -p buses
+docker exec -it nycbuswatcher_db_1 mysql -uroot -p buses
 [root password=bustime]
 ```
 

@@ -13,22 +13,23 @@ services:
       MYSQL_DATABASE: buses
       MYSQL_USER: nycbuswatcher
       MYSQL_PASSWORD: bustime
+      TZ: America/New_York
     volumes:
-      - bus_data:/var/lib/mysql
+      - bus_database:/var/lib/mysql
 
-  nycbusgrabber:
+  grabber:
     build:
       context: .
       dockerfile: Dockerfile
     depends_on:
       - db
     volumes:
-      - bus_data:/app/data
+      - bus_files:/app/data
     command:
       # tail -f /dev/null
       /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py
 
-  web:
+  api-www:
     build:
       context: .
     ports:
@@ -41,6 +42,6 @@ services:
     # Infinite loop, to keep it alive, for debugging
     # command: bash -c "while true; do echo 'sleeping...' && sleep 10; done"
 
-
 volumes:
-  bus_data:
+  bus_database:
+  bus_files:
