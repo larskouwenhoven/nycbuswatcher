@@ -65,4 +65,4 @@ dependencies:
     - asks==2.4.10
     - h11==0.10.0
     - mysqlclient==2.0.1
-prefix: /opt/bin/anaconda3/envs/nycbuswatcher2
+prefix: /opt/bin/anaconda3/envs/nycbuswatcher

@@ -7,7 +7,7 @@ from marshmallow import Schema, fields
 
 from sqlalchemy import create_engine
 
-from Database import *
+import Database as db
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -26,8 +26,8 @@ from config import config
 
 #--------------- INITIALIZATION ---------------
 
-db_connect = create_engine(get_db_url(config['dbuser'],config['dbpassword'],config['dbhost'],config['dbname'])) # todo need a production override for this to set to 'localhost' for debugging?
-app = Flask(__name__)
+db_connect = create_engine(db.get_db_url(config.config['dbuser'], config.config['dbpassword'], config.config['dbhost'], config.config['dbname'])) # todo need a production override for this to set to 'localhost' for debugging?
+app = Flask(__name__,template_folder='./api-www/templates')
 api = Api(app)
 
 

@@ -11,8 +11,10 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import trio
 from dotenv import load_dotenv
 
-from app import Database as db
+import Database as db
+# from grabroutemaps import GTFS2GeoJSON
 from config import config
+
 
 def get_path_list():
     path_list = []
@@ -144,6 +146,7 @@ if __name__ == "__main__":
         print('Scanning on {}-second interval.'.format(interval))
         scheduler = BackgroundScheduler()
         scheduler.add_job(async_grab_and_store, 'interval', seconds=interval)
+        # scheduler.add_job(GTFS2GeoJSON.update_route_map(), hours=24) #todo reinstall pandas and shapely to conda and add this back
         scheduler.start()
         try:
             while True:
