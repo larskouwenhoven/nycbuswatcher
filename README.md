@@ -15,13 +15,21 @@ Fetches list of active routes from OneBusAway API via asynchronous http requests
 
     `git clone https://github.com/anthonymobile/nycbuswatcher.git`
     
-2. obtain an API key from http://bustime.mta.info/wiki/Developers/Index/ and put it in .env
+2. obtain API keys and put them in .env
+    - http://bustime.mta.info/wiki/Developers/Index/
+    - MapBox
 
-    `echo 'API_KEY = fasjhfasfajskjrwer242jk424242' > .env`
+    ```txt
+    API_KEY = fasjhfasfajskjrwer242jk424242'
+    MAPBOX_API_KEY = pk.ey42424fasjhfasfajskjrwer242jk424242'
+    ```
     
 3. build and run the images
 
-    `docker-compose up -d --build`
+    ```
+    cd nycbuswatcher
+    docker-compose up -d --build
+    ```
 
 ### (manual)
 
