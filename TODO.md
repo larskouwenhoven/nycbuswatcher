@@ -1,29 +1,37 @@
 # todo
 
-1. debug docker flask --> db connection
-    - is the time/timezone different in the different containers?
-    - seems like it might just be a problem with the NOW - 60 seconds part of the query?
+1. basement toy deploy
+    - gandi or cloudflare
+ 
 
 2. route maps for front end
     - combine them into a single file?
     - make the geojson accessible via the API
     - add layer(s) to the Javascript map on index.html
     - create a scheduler job to update them daily at 2am (in a temp folder, only copying over if successful and backing up the old one)
- 
-3. API
+
+3. finish API
     - system API (bulk query)
         - requires a datetime range in in ISO 8601 like `/trips&start=2020-08-11T14:42:00+00:00&end=2020-08-11T15:12:00+00:00` per [urschrei](https://twitter.com/urschrei/status/1309473665789165569)
         - use query filter to enforce a maximum interval of 1 hour? (for now)
         - returns all fields (for now)
     - keplerized endpoints
 
-4. project refactor
-    - once everything is working, mark a release 
-    - work out lib import path issues in the project generally (what are best practices?)   
-    - having Database in the app folder is weird and bad
-   
+# cornell deployment
 
-### debugging reference
+1. decide what commit to deploy
+
+2. deploy and observe
+
+3. stop EC2 instance
+
+4. export data from EC2
+
+5. import EC2 data into Cornell instance
+
+
+
+# debugging
 
 s*connect to mysql inside a container* to start a mysql client inside a mysql docker container
 

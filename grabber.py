@@ -1,6 +1,7 @@
 import argparse
 import requests
 import os
+import glob, shutil
 from datetime import datetime
 import json
 import time
@@ -72,13 +73,36 @@ def dump_to_file(feeds):
     timestamp_pretty = timestamp.strftime("%Y-%m-%dT_%H:%M:%S.%f")
     for route_bundle in feeds:
         for route_id,route_report in route_bundle.items():
-            dumpfile=(filepath() + route_id.split()[1] + '_' + timestamp_pretty +'.gz')
+            dumpfile=(filepath() + timestamp_pretty + '_' + route_id.split()[1] +'.gz')
             with gzip.open(dumpfile, 'wt', encoding="ascii") as zipfile:
                 try:
                     json.dump(route_report.json(), zipfile)
                 except:
                     pass # if error, dont write and return
     return timestamp
+
+
+# https://programmersought.com/article/77402568604/
+def rotate_files(): #future this is really hacky, rewrite
+    today = datetime.date.today()
+    yesterday = today - datetime.timedelta(days = 1) # e.g. 2020-10-04
+    # print ('today is {}, yesterday was {}'.format(today,yesterday))
+    datapath = './data/'
+    outfile = '{}daily-{}.gz'.format(datapath, yesterday)
+    # print ('bundling minute grabs from {} into {}'.format(yesterday,outfile))
+    all_gz_files = glob.glob("{}*.gz".format(datapath))
+    yesterday_gz_files = []
+    for file in all_gz_files:
+        if file[7:17] == str(yesterday): # this should parse the path using os.path.join?
+            yesterday_gz_files.append(file)
+    # print ('adding {} files'.format(len(yesterday_gz_files)))
+    with open(outfile, 'wb') as wfp:
+        for fn in yesterday_gz_files:
+            with open(fn, 'rb') as rfp:
+                shutil.copyfileobj(rfp, wfp)
+    for file in yesterday_gz_files:
+        os.remove(file)
+
 
 
 def dump_to_db(timestamp, feeds):
@@ -144,9 +168,19 @@ if __name__ == "__main__":
     if os.environ['PYTHON_ENV'] == "production":
         interval = 60
         print('Scanning on {}-second interval.'.format(interval))
-        scheduler = BackgroundScheduler()
-        scheduler.add_job(async_grab_and_store, 'interval', seconds=interval)
-        # scheduler.add_job(GTFS2GeoJSON.update_route_map(), hours=24) #todo reinstall pandas and shapely to conda and add this back
+        scheduler = BackgroundScheduler({
+                                            'apscheduler.jobstores.default':
+                                                {
+                                                    'type': 'sqlalchemy',
+                                                    'url': 'sqlite:///jobs.sqlite'
+                                                },
+                                            'apscheduler.job_defaults.coalesce': 'false',
+                                            'apscheduler.job_defaults.max_instances': '3',
+                                            'apscheduler.timezone': 'UTC',
+                                        })
+        scheduler.add_job(async_grab_and_store, 'interval', seconds=interval, max_instances=3)
+        # scheduler.add_job(GTFS2GeoJSON.update_route_map(), hour=2) #run at 2am daily todo reinstall pandas and shapely to conda and add this back
+        # scheduler.add_job(rotate_files, hour=1) #run at 1 am daily
         scheduler.start()
         try:
             while True:
