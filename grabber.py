@@ -2,7 +2,7 @@ import argparse
 import requests
 import os
 import glob, shutil
-from datetime import datetime
+import datetime
 import json
 import time
 import gzip
