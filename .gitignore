@@ -91,3 +91,4 @@ google_transit*.zip
 /data
 /routemap
 *.geojson
+*.sqlite

@@ -225,7 +225,9 @@ def update_route_map():
         gj.dump(feature_collection, outfile)
 
     for file in filelist:
-        os.remove(file)
+        os.remove(workdir+file)
+
+    return
 
 
 if __name__ == "__main__":
