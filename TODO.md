@@ -43,3 +43,7 @@ docker exec -it nycbuswatcher_db_1 mysql -uroot -p buses
 quick diagnostic query for how many records per day—`SELECT service_date, COUNT(*) FROM buses GROUP BY service_date;`
 
 query how many by date/hour/minute—`SELECT service_date, date_format(timestamp,'%Y-%m-%d %H-%i'), COUNT(*) FROM buses GROUP BY service_date, date_format(timestamp,'%Y-%m-%d %H-%i');`
+
+#### create conda env
+
+`conda env export --from-history >environment.new.yml`
