@@ -70,7 +70,7 @@ def get_db_args():
             )
 
 def dump_to_file(feeds):
-    timestamp = datetime.now()
+    timestamp = datetime.datetime.now()
     timestamp_pretty = timestamp.strftime("%Y-%m-%dT_%H:%M:%S.%f")
     for route_bundle in feeds:
         for route_id,route_report in route_bundle.items():

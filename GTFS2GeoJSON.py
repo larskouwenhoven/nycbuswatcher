@@ -224,15 +224,6 @@ def update_route_map():
     with open('api-www/static/route_shapes_nyc.geojson', 'w') as outfile:
         gj.dump(feature_collection, outfile)
 
-    # # verify validity
-    # with open('api-www/static/route_shapes_nyc.geojson', 'r') as infile:
-    #     fc = gj.load(infile)
-    # for k,v in fc.items():
-    #     print (k,v,len(v))
-    #     if v == 'features':
-    #         for j,w in v:
-    #             print (j,w)
-
     for file in filelist:
         os.remove(file)
 
