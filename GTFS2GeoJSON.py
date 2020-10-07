@@ -19,6 +19,7 @@
 #Run this from within a directory containing the GTFS csv files.
 
 import os
+import json
 
 #pandas lets us use data frames to load and store the GTFS tables
 import pandas as pd
@@ -36,7 +37,9 @@ from zipfile import ZipFile
 # get the latest files from transitfeed
 
 
-def update_route_maps():
+def update_route_map():
+
+    workdir="routemap/"
 
     boros = {'brooklyn':80,
              'bronx': 81,
@@ -48,8 +51,9 @@ def update_route_maps():
     for boro, url_stub in boros.items():
         print('Downloading and converting GTFS for {} to GeoJSON...'.format(boro))
 
+        boropath=workdir + boro
         # check directories exist
-        path = ("{}/".format(boro))
+        path = ("{}/".format(boropath))
         check = os.path.isdir(path)
         if not check:
             os.makedirs(path)
@@ -57,14 +61,14 @@ def update_route_maps():
         zipurl = 'https://transitfeeds.com/p/mta/{}/latest/download'.format(url_stub)
         with urlopen(zipurl) as zipresp:
             with ZipFile(BytesIO(zipresp.read())) as zfile:
-                zfile.extractall('{}/'.format(boro))
+                zfile.extractall('{}/'.format(boropath))
 
         #Read relevant GTFS tables to pandas dataframes
-        stops = pd.read_csv('{}/stops.txt'.format(boro))
-        shapes = pd.read_csv('{}/shapes.txt'.format(boro))
-        routes = pd.read_csv('{}/routes.txt'.format(boro))
-        stop_times = pd.read_csv('{}/stop_times.txt'.format(boro))
-        trips = pd.read_csv('{}/trips.txt'.format(boro))
+        stops = pd.read_csv('{}/stops.txt'.format(boropath))
+        shapes = pd.read_csv('{}/shapes.txt'.format(boropath))
+        routes = pd.read_csv('{}/routes.txt'.format(boropath))
+        stop_times = pd.read_csv('{}/stop_times.txt'.format(boropath))
+        trips = pd.read_csv('{}/trips.txt'.format(boropath))
 
         #Join routes table to trips table on route_id
         routes_trips = pd.merge(routes, trips, on='route_id', how='inner')
@@ -182,21 +186,56 @@ def update_route_maps():
 
         #Finally, write our collection of Features (one for each route) to file in
         #geoJSON format, as a FeatureCollection:
-        with open('route_shapes_{}.geojson'.format(boro), 'w') as outfile:
+        with open('{}route_shapes_{}.geojson'.format(workdir,boro), 'w') as outfile:
             gj.dump(gj.FeatureCollection(route_shape_list), outfile)
 
         # delete the GTFS files
-        os.remove('{}/stops.txt'.format(boro))
-        os.remove('{}/shapes.txt'.format(boro))
-        os.remove('{}/routes.txt'.format(boro))
-        os.remove('{}/stop_times.txt'.format(boro))
-        os.remove('{}/trips.txt'.format(boro))
-        os.remove('{}/agency.txt'.format(boro)) # not used by script anyways
-        os.remove('{}/calendar.txt'.format(boro)) # not used by script anyways
-        os.remove('{}/calendar_dates.txt'.format(boro)) # not used by script anyways
-        os.rmdir('{}'.format(boro))
+        os.remove('{}/stops.txt'.format(boropath))
+        os.remove('{}/shapes.txt'.format(boropath))
+        os.remove('{}/routes.txt'.format(boropath))
+        os.remove('{}/stop_times.txt'.format(boropath))
+        os.remove('{}/trips.txt'.format(boropath))
+        os.remove('{}/agency.txt'.format(boropath)) # not used by script anyways
+        os.remove('{}/calendar.txt'.format(boropath)) # not used by script anyways
+        os.remove('{}/calendar_dates.txt'.format(boropath)) # not used by script anyways
+        os.rmdir('{}'.format(boropath))
 
-    # todo merge the files into one geojson feature collection
-    # https://github.com/batpad/merge-geojson
-    # or
-    # load them in as geojson.FeatureCollection objects, then iterate through them, adding each of the Features inside to a new master NYC FeatureCollection
+    # merge the files into one geojson feature collection
+
+    features_container = []
+
+    filelist = ['route_shapes_bronx.geojson',
+                'route_shapes_brooklyn.geojson',
+                'route_shapes_manhattan.geojson',
+                'route_shapes_queens.geojson',
+                'route_shapes_staten island.geojson'
+                ]
+
+    for file in filelist:
+        with open((workdir+file), 'r') as infile:
+            data = json.load(infile)
+            for k,v in data.items():
+                if k == 'features':
+                    for feature in v:
+                        features_container.append(feature)
+
+    feature_collection = gj.FeatureCollection(features_container)
+
+    with open('api-www/static/route_shapes_nyc.geojson', 'w') as outfile:
+        gj.dump(feature_collection, outfile)
+
+    # # verify validity
+    # with open('api-www/static/route_shapes_nyc.geojson', 'r') as infile:
+    #     fc = gj.load(infile)
+    # for k,v in fc.items():
+    #     print (k,v,len(v))
+    #     if v == 'features':
+    #         for j,w in v:
+    #             print (j,w)
+
+    for file in filelist:
+        os.remove(file)
+
+
+if __name__ == "__main__":
+    update_route_map()

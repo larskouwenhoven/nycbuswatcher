@@ -13,7 +13,8 @@ import trio
 from dotenv import load_dotenv
 
 import Database as db
-# from grabroutemaps import GTFS2GeoJSON
+import GTFS2GeoJSON
+
 from config import config
 
 
@@ -179,8 +180,8 @@ if __name__ == "__main__":
                                             'apscheduler.timezone': 'UTC',
                                         })
         scheduler.add_job(async_grab_and_store, 'interval', seconds=interval, max_instances=3)
-        # scheduler.add_job(GTFS2GeoJSON.update_route_map(), hour=2) #run at 2am daily todo reinstall pandas and shapely to conda and add this back
-        # scheduler.add_job(rotate_files, hour=1) #run at 1 am daily
+        scheduler.add_job(GTFS2GeoJSON.update_route_map(), hour=2) #run at 2am daily
+        scheduler.add_job(rotate_files, hour=1) #run at 1 am daily
         scheduler.start()
         try:
             while True:
