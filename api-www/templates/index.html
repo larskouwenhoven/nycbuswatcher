@@ -30,13 +30,10 @@
             <a class="nav-link" >Map <span class="sr-only">(current)</span></a>
           </li>
            <li class="nav-item">
-            <a class="nav-link" href="/why">Why</a>
+            <a class="nav-link" href="/faq">FAQ</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="https://github.com/anthonymobile/nycbuswatcher">How</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/who">Who</a>
+            <a class="nav-link" href="https://github.com/anthonymobile/nycbuswatcher">Code</a>
           </li>
         </ul>
       </div>
@@ -82,21 +79,26 @@
 
             map.addSource('observations', { type: 'geojson', data: url });
             map.addLayer({
-                'id': 'drone',
+                'id': 'buses',
                 'type': 'circle',
                 'source': 'observations',
                 'paint': {
-                // make circles larger as the user zooms from z12 to z22
                 'circle-radius': 3,
-                    'circle-color': '#0039A6'
+                    //'circle-color': '#0039A6'
+
+                    'circle-color': [
+                        'match',
+                        ['get', 'occupancy'],
+                        'full',
+                        '#e55e5e',
+                        'standingAvailable',
+                        '#FFFF00',
+                        'seatsAvailable',
+                        '#00FF00',
+                        /* null */ '#87CEFA'
+                        ]
                         },
-
-
-
-
             });
-
-
             });
 
 

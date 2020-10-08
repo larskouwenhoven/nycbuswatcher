@@ -189,13 +189,14 @@ def index():
 def map():
     return render_template('map.html')
 
-@app.route('/why')
-def why():
-    return render_template('why.html')
+@app.route('/occupancy')
+def occupancy():
+    return render_template('occupancy.html')
 
-@app.route('/who')
-def who():
-    return render_template('who.html')
+@app.route('/faq')
+def faq():
+    return render_template('faq.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
