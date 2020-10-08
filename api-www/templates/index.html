@@ -91,8 +91,29 @@
                     'circle-color': '#0039A6'
                         },
 
+
+
+
             });
+
+
             });
+
+
+
+             map.on('load', function () {
+                map.addSource('routes', {type: 'geojson', data: '/static/route_shapes_nyc.geojson'});
+                map.addLayer({
+                'id': 'routes',
+                'source': 'routes',
+                'type': 'line',
+                    'paint': { 'line-color':'#808080',
+                    'line-opacity':0.3,
+                    'line-width': 1}
+                });
+
+                });
+
 
 
 
