@@ -183,7 +183,7 @@ if __name__ == "__main__":
                                             'apscheduler.job_defaults.max_instances': '3',
                                             'apscheduler.timezone': 'UTC',
                                         })
-        scheduler.add_job(async_grab_and_store, 'interval', seconds=interval, max_instances=3)
+        scheduler.add_job(async_grab_and_store, 'interval', seconds=interval, max_instances=1, misfire_grace_time=15)
         scheduler.add_job(GTFS2GeoJSON.update_route_map, 'cron', hour='2') #run at 2am daily
         scheduler.add_job(rotate_files,'cron', hour='1') #run at 1 am daily
         scheduler.start()
