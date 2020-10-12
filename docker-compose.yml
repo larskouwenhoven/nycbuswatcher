@@ -18,6 +18,7 @@ services:
       - bus_database:/var/lib/mysql
 
   grabber:
+    restart: always
     build:
       context: .
       dockerfile: Dockerfile
@@ -30,6 +31,7 @@ services:
       /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py
 
   api-www:
+    restart: always
     build:
       context: .
     ports:

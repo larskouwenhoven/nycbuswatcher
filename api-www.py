@@ -1,7 +1,8 @@
 import os
 from datetime import date, datetime
 
-from flask import Flask, render_template, request, jsonify, abort, send_from_directory
+from flask import Flask, render_template, request, jsonify, abort
+from flask_cors import CORS
 from flask_restful import Resource, Api
 from marshmallow import Schema, fields
 
@@ -29,6 +30,7 @@ from config import config
 db_connect = create_engine(db.get_db_url(config.config['dbuser'], config.config['dbpassword'], config.config['dbhost'], config.config['dbname'])) # todo need a production override for this to set to 'localhost' for debugging?
 app = Flask(__name__,template_folder='./api-www/templates',static_url_path='/static',static_folder="api-www/static/")
 api = Api(app)
+CORS(app)
 
 
 #--------------- HELPER FUNCTIONS ---------------

@@ -16,6 +16,7 @@ dependencies:
   - cryptography=3.1.1
   - dnspython=2.0.0
   - flask=1.1.2
+  - flask-cors=3.0.8
   - flask-restful=0.3.8
   - geojson=2.5.0
   - geos=3.8.1
@@ -26,7 +27,7 @@ dependencies:
   - libcblas=3.8.0
   - libcxx=10.0.1
   - libffi=3.2.1
-  # - libgfortran=4.0.0 # causing problems on build
+  - libgfortran=4.0.0
   - libgfortran4=7.5.0
   - liblapack=3.8.0
   - libopenblas=0.3.10
