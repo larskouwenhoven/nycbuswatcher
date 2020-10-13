@@ -61,7 +61,7 @@
         // TO MAKE THE MAP APPEAR YOU MUST
         // ADD YOUR ACCESS TOKEN FROM
         // https://account.mapbox.com
-            mapboxgl.accessToken = 'pk.eyJ1IjoiYml0c2FuZGF0b21zIiwiYSI6ImNrZm9vYTNkdjAzYm4yeXJ2cmh2cGI4cXoifQ.RYsGUuXDe202Mk4xWBli6Q';
+            mapboxgl.accessToken = 'pk.eyJ1IjoiYml0c2FuZGF0b21zIiwiYSI6ImNrZm9vYTNkdjAzYm4yeXJ2cmh2cGI4cXoifQ.RYsGUuXDe202Mk4xWBli6Q'; //bug remove mapbpx access token from repo / reset it on mapbox
 
         var map = new mapboxgl.Map({
             container: 'map', // container id
@@ -70,7 +70,6 @@
             zoom: 11 // starting zoom
         });
 
-        var url = '/api/v1/nyc/livemap';
 
 
                     map.on('load', function () {
@@ -85,6 +84,10 @@
                 });
 
                 });
+
+         // var url = '/api/v1/nyc/livemap'; // original db query based version
+            var url = '/static/lastknownpositions.geojson'; // new static version
+
 
             map.on('load', function () {
             var request = new XMLHttpRequest();
@@ -106,7 +109,7 @@
             });
             }
             };
-            request.send();
+            request.send(); // bug why delay on initial bus positions load? does it wait 60 seconds before first load?
             }, 60000); // refresh every n milliseconds
 
             map.addSource('observations', { type: 'geojson', data: url });
@@ -132,6 +135,9 @@
                         },
             });
             });
+
+
+            // todo add show entire record metadata on mouseover
 
     </script>
 {##}

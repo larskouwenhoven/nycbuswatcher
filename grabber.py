@@ -105,7 +105,6 @@ def rotate_files(): #future this is really hacky, rewrite
         os.remove(file)
 
 
-
 def dump_to_db(timestamp, feeds):
     db_url=db.get_db_url(*get_db_args())
     db.create_table(db_url)
@@ -119,6 +118,7 @@ def dump_to_db(timestamp, feeds):
                 session.add(bus)
                 num_buses = num_buses + 1
         session.commit()
+    #todo execute the same query here as in /livemap view, and dump the results to api-www.results_to_FeatureCollection >>> /static/lastknownpositions.geojson
     return num_buses
 
 
@@ -173,16 +173,17 @@ if __name__ == "__main__":
     if os.environ['PYTHON_ENV'] == "production":
         interval = 60
         print('Scanning on {}-second interval.'.format(interval))
-        scheduler = BackgroundScheduler({
-                                            'apscheduler.jobstores.default':
-                                                {
-                                                    'type': 'sqlalchemy',
-                                                    'url': 'sqlite:///jobs.sqlite'
-                                                },
-                                            'apscheduler.job_defaults.coalesce': 'false',
-                                            'apscheduler.job_defaults.max_instances': '3',
-                                            'apscheduler.timezone': 'UTC',
-                                        })
+        # scheduler = BackgroundScheduler({
+        #                                     'apscheduler.jobstores.default':
+        #                                         {
+        #                                             'type': 'sqlalchemy',
+        #                                             'url': 'sqlite:///jobs.sqlite'
+        #                                         },
+        #                                     'apscheduler.job_defaults.coalesce': 'false',
+        #                                     'apscheduler.job_defaults.max_instances': '3',
+        #                                     'apscheduler.timezone': 'UTC',
+        #                                 })
+        scheduler = BackgroundScheduler()
         scheduler.add_job(async_grab_and_store, 'interval', seconds=interval, max_instances=1, misfire_grace_time=15)
         scheduler.add_job(GTFS2GeoJSON.update_route_map, 'cron', hour='2') #run at 2am daily
         scheduler.add_job(rotate_files,'cron', hour='1') #run at 1 am daily
