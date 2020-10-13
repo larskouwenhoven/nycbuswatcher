@@ -109,8 +109,8 @@
             });
             }
             };
-            request.send(); // bug why delay on initial bus positions load? does it wait 60 seconds before first load?
-            }, 60000); // refresh every n milliseconds
+            request.send();
+            }, 30000); // refresh every n milliseconds
 
             map.addSource('observations', { type: 'geojson', data: url });
             map.addLayer({
