@@ -7,6 +7,9 @@ import json
 import time
 import gzip
 import pickle
+import collections.abc
+
+import geojson
 
 from apscheduler.schedulers.background import BackgroundScheduler
 import trio
@@ -35,7 +38,8 @@ def get_path_list():
         print("Route URLs loaded from pickle cache.")
     finally:
         routes = response.json()
-        print('Found {} routes.'.format(len(routes['data']['list'])))
+        now=datetime.datetime.now()
+        print('Found {} routes at {}.'.format(len(routes['data']['list']),now.strftime("%Y-%m-%d %H:%M:%S")))
 
     for route in routes['data']['list']:
         path_list.append({route['id']:"/api/siri/vehicle-monitoring.json?key={}&VehicleMonitoringDetailLevel=calls&LineRef={}".format(os.getenv("API_KEY"), route['id'])})
@@ -84,7 +88,7 @@ def dump_to_file(feeds):
 
 
 # https://programmersought.com/article/77402568604/
-def rotate_files(): #future this is really hacky, rewrite
+def rotate_files():
     today = datetime.date.today()
     yesterday = today - datetime.timedelta(days = 1) # e.g. 2020-10-04
     # print ('today is {}, yesterday was {}'.format(today,yesterday))
@@ -105,6 +109,51 @@ def rotate_files(): #future this is really hacky, rewrite
         os.remove(file)
 
 
+def flatten(d, parent_key='', sep='_'):
+    items = []
+    for k, v in d.items():
+        new_key = parent_key + sep + k if parent_key else k
+        if isinstance(v, collections.abc.MutableMapping):
+            items.extend(flatten(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
+
+
+def dump_to_lastknownpositions(feeds):
+    f_list=[]
+    for route_bundle in feeds:
+        for route_id,route_report in route_bundle.items():
+            route_report = route_report.json()
+            try:
+                for b in route_report['Siri']['ServiceDelivery']['VehicleMonitoringDelivery'][0]['VehicleActivity']:
+                    p = geojson.Point((b['MonitoredVehicleJourney']['VehicleLocation']['Longitude'],
+                                       b['MonitoredVehicleJourney']['VehicleLocation']['Latitude']))
+
+                    # todo warning this creates a gigantic file, need to be more selective with fields
+                    # f = geojson.Feature(geometry=p, properties=flatten(b['MonitoredVehicleJourney']))
+
+                    # this version only shows ones with reported values
+                    # f = geojson.Feature(geometry=p,properties={'occupancy':b['MonitoredVehicleJourney']['Occupancy']})
+
+                    # this should work
+                    try:
+                        occupancy={'occupancy':b['MonitoredVehicleJourney']['Occupancy']}
+                    except KeyError:
+                        occupancy = {'occupancy': 'empty'}
+                    f = geojson.Feature(geometry=p, properties=occupancy)
+
+                    f_list.append(f)
+            except KeyError: # no VehicleActivity?
+                pass
+    fc = geojson.feature.FeatureCollection(f_list)
+
+    with open('./api-www/static/lastknownpositions.geojson', 'w') as outfile:
+        geojson.dump(fc, outfile)
+
+    return
+
+
 def dump_to_db(timestamp, feeds):
     db_url=db.get_db_url(*get_db_args())
     db.create_table(db_url)
@@ -118,7 +167,6 @@ def dump_to_db(timestamp, feeds):
                 session.add(bus)
                 num_buses = num_buses + 1
         session.commit()
-    #todo execute the same query here as in /livemap view, and dump the results to api-www.results_to_FeatureCollection >>> /static/lastknownpositions.geojson
     return num_buses
 
 
@@ -130,7 +178,7 @@ def async_grab_and_store():
 
     async def grabber(s,a_path,route_id):
         try:
-            r = await s.get(path=a_path) # bug need to trap connection errors here
+            r = await s.get(path=a_path)
         except ValueError as e :
             print ('{} from DNS issues'.format(e))
         feeds.append({route_id:r})
@@ -149,10 +197,13 @@ def async_grab_and_store():
 
     trio.run(main, path_list)
 
-    timestamp = dump_to_file(feeds)
-    num_buses = dump_to_db(timestamp, feeds)
+
+    # timestamp = dump_to_file(feeds) #bug uncomment me
+    blah = dump_to_lastknownpositions(feeds) #todo test
+    # num_buses = dump_to_db(timestamp, feeds) #bug uncomment me
     end = time.time()
-    print('Fetched {} buses on {} routes in {:2f} seconds to gzipped archive and mysql database.\n'.format(num_buses,len(feeds),(end - start)))
+    # print('Fetched {} buses on {} routes in {:2f} seconds to gzipped archive and mysql database.\n'.format(
+    # num_buses,len(feeds),(end - start)))
 
     return
 
@@ -184,7 +235,7 @@ if __name__ == "__main__":
         #                                     'apscheduler.timezone': 'UTC',
         #                                 })
         scheduler = BackgroundScheduler()
-        scheduler.add_job(async_grab_and_store, 'interval', seconds=interval, max_instances=1, misfire_grace_time=15)
+        scheduler.add_job(async_grab_and_store, 'interval', seconds=interval, max_instances=2, misfire_grace_time=15)
         scheduler.add_job(GTFS2GeoJSON.update_route_map, 'cron', hour='2') #run at 2am daily
         scheduler.add_job(rotate_files,'cron', hour='1') #run at 1 am daily
         scheduler.start()
