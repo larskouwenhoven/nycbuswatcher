@@ -86,7 +86,7 @@
                 });
 
          // var url = '/api/v1/nyc/livemap'; // original db query based version
-            var url = '/static/lastknownpositions.geojson'; // new static version
+            var url = '/api/v1/nyc/livemap2'; // new static version
 
 
             map.on('load', function () {
@@ -102,6 +102,8 @@
             // update the drone symbol's location on the map
             map.getSource('observations').setData(json);
 
+
+
             // fly the map to the drone's current location
             map.flyTo({
             center: json.geometry.coordinates,
@@ -111,6 +113,8 @@
             };
             request.send();
             }, 30000); // refresh every n milliseconds
+
+
 
             map.addSource('observations', { type: 'geojson', data: url });
             map.addLayer({

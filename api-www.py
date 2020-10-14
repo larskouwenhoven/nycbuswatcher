@@ -1,7 +1,7 @@
 import os
 from datetime import date, datetime
 
-from flask import Flask, render_template, request, jsonify, abort
+from flask import Flask, render_template, request, jsonify, abort, send_from_directory
 from flask_cors import CORS
 from flask_restful import Resource, Api
 from marshmallow import Schema, fields
@@ -169,13 +169,20 @@ class SystemAPI(Resource):
             return results_to_KeplerTable(results)
 
 
+class LiveMap2(Resource):
+    def get(self):
+        import geojson
+        with open('./api-www/static/lastknownpositions.geojson', 'r') as infile:
+            return geojson.load(infile)
+
+
 
 #--- URLS ---#
 api.add_resource(KnownRoutes, '/api/v1/nyc/knownroutes')
 api.add_resource(LiveMap, '/api/v1/nyc/livemap')
+api.add_resource(LiveMap2, '/api/v1/nyc/livemap2')
 api.add_resource(TripAPI, '/api/v1/nyc/trips', endpoint='trips') #todo test /trips endpoints
 api.add_resource(SystemAPI, '/api/v1/nyc/buses', endpoint='buses') #todo test /buses endpoints
-
 
 
 #-----------------------------------------------------------------------------------------
@@ -199,6 +206,12 @@ def occupancy():
 def faq():
     return render_template('faq.html')
 
+# todo pretty clear the browser is caching this
+# todo wrap this in an http header?
+@app.route('/api/v1/nyc/lastknownpositions')
+def lkp():
+    print (app.static_folder)
+    return send_from_directory(app.static_folder,'lastknownpositions.geojson')
 
 if __name__ == '__main__':
     app.run(debug=True)

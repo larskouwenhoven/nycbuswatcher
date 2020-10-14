@@ -141,7 +141,7 @@ def dump_to_lastknownpositions(feeds):
                         occupancy={'occupancy':b['MonitoredVehicleJourney']['Occupancy']}
                     except KeyError:
                         occupancy = {'occupancy': 'empty'}
-                    f = geojson.Feature(geometry=p, properties=occupancy)
+                    f = geojson.Feature(geometry=p, properties=occupancy) # bug need to add 'geometry?' for the flyto
 
                     f_list.append(f)
             except KeyError: # no VehicleActivity?
@@ -199,7 +199,7 @@ def async_grab_and_store():
 
 
     timestamp = dump_to_file(feeds)
-    blah = dump_to_lastknownpositions(feeds)
+    dump_to_lastknownpositions(feeds)
     num_buses = dump_to_db(timestamp, feeds)
     end = time.time()
     print('Fetched {} buses on {} routes in {:2f} seconds to gzipped archive and mysql database.\n'.format(
