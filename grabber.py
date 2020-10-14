@@ -198,13 +198,12 @@ def async_grab_and_store():
     trio.run(main, path_list)
 
 
-    # timestamp = dump_to_file(feeds) #bug uncomment me
-    blah = dump_to_lastknownpositions(feeds) #todo test
-    # num_buses = dump_to_db(timestamp, feeds) #bug uncomment me
+    timestamp = dump_to_file(feeds)
+    blah = dump_to_lastknownpositions(feeds)
+    num_buses = dump_to_db(timestamp, feeds)
     end = time.time()
-    # print('Fetched {} buses on {} routes in {:2f} seconds to gzipped archive and mysql database.\n'.format(
-    # num_buses,len(feeds),(end - start)))
-
+    print('Fetched {} buses on {} routes in {:2f} seconds to gzipped archive and mysql database.\n'.format(
+    num_buses,len(feeds),(end - start)))
     return
 
 

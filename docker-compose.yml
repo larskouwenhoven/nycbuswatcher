@@ -26,6 +26,7 @@ services:
       - db
     volumes:
       - bus_files:/app/data
+      - bus_static:/app/api-www/static
     command:
       # tail -f /dev/null
       /opt/conda/envs/nycbuswatcher/bin/python3 /app/grabber.py
@@ -34,6 +35,8 @@ services:
     restart: always
     build:
       context: .
+    volumes:
+      - bus_static:/app/api-www/static
     ports:
       - "80:80"
     environment:
@@ -47,3 +50,4 @@ services:
 volumes:
   bus_database:
   bus_files:
+  bus_static:
