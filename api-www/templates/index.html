@@ -87,6 +87,7 @@
 
          // var url = '/api/v1/nyc/livemap'; // original db query based version
             var url = '/api/v1/nyc/livemap2'; // new static version
+            var passengers = {{ passengers }}
 
 
             map.on('load', function () {
@@ -122,9 +123,12 @@
                 'type': 'circle',
                 'source': 'observations',
                 'paint': {
-                'circle-radius': {
-                                stops: [[8, 2], [11, 4], [16, 8]]
-                                },
+                'circle-radius':
+                    ["interpolate", ["linear"], ["zoom"],
+                        0, 0,
+                        20, ['*', 2, ['get', 'passengers']]],
+
+
                     'circle-color': [
                         'match',
                         ['get', 'occupancy'],

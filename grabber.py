@@ -141,7 +141,15 @@ def dump_to_lastknownpositions(feeds):
                         occupancy={'occupancy':b['MonitoredVehicleJourney']['Occupancy']}
                     except KeyError:
                         occupancy = {'occupancy': 'empty'}
-                    f = geojson.Feature(geometry=p, properties=occupancy) # bug need to add 'geometry?' for the flyto
+
+                    try: #bug finish coding + debugging here
+                        passengers={'passengers': str(b['MonitoredVehicleJourney']['MonitoredCall']['Extensions'][
+                            'Capacities']['EstimatedPassengerCount'])}
+                        print('{} passengers seen'.format(passengers))
+                    except KeyError:
+                        passengers = {'passengers': '0'}
+
+                    f = geojson.Feature(geometry=p, properties=[occupancy,passengers])
 
                     f_list.append(f)
             except KeyError: # no VehicleActivity?

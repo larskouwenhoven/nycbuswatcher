@@ -39,8 +39,9 @@ def parse_buses(timestamp, route, data, db_url):
               'progress_rate': ['ProgressRate'],
               'progress_status': ['ProgressStatus'],
               'occupancy': ['Occupancy'],
-              'vehicle_id':['VehicleRef'],
-              'gtfs_block_id':['BlockRef']
+              'vehicle_id':['VehicleRef'], #todo use this to lookup if articulated or not https://en.wikipedia.org/wiki/MTA_Regional_Bus_Operations_bus_fleet
+              'gtfs_block_id':['BlockRef'],
+              'passenger_count': ['MonitoredCall', 'Extensions','Capacities','EstimatedPassengerCount']
               }
     buses = []
     try:
@@ -48,9 +49,13 @@ def parse_buses(timestamp, route, data, db_url):
             bus = BusObservation(route,db_url,timestamp)
             for k,v in lookup.items():
                 try:
-                    if len(v) > 1:
+                    if len(v) == 2:
                         val = b['MonitoredVehicleJourney'][v[0]][v[1]]
                         setattr(bus, k, val)
+                    elif len(v) == 4:
+                        val = b['MonitoredVehicleJourney'][v[0]][v[1]][v[2]][v[3]] # bug b[
+                        # 'MonitoredVehicleJourney']['MonitoredCall']['Extensions']['Capacities'][
+                        # 'EstimatedPassengerCount'] works
                     else:
                         val = b['MonitoredVehicleJourney'][v[0]]
                         setattr(bus, k, val)
@@ -89,6 +94,7 @@ class BusObservation(Base):
     occupancy=Column(String(31))
     vehicle_id=Column(String(31))
     gtfs_block_id=Column(String(63))
+    passenger_count=Column(String(31))
 
     def __repr__(self):
         output = ''
