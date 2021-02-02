@@ -24,11 +24,13 @@
 - go over setup of development environment for students
 - assignment: install postgres, install [mta-bus-archive](https://github.com/Bus-Data-NYC/mta-bus-archive), retrieve one or more days of data and explore. does it contain the occupancy and passenger count fields for each observation?
 
-### feb 26 — week 3 — 
+### feb 26 — week 3 — mapping bus locations
+
 
 ### mar 5 — week 4 — 
 
-### mar 12 — week 5 — 
+### mar 12 — week 5 — exploring occupancy reports and passenger counts
+- Anthony assignment: pick up development of passenger count parsing and restart db (commit #34c68a649f88c50656f80920397009deda4e0e4d development)
 
 ### mar 19 — Anthony Vacation
 
