@@ -11,7 +11,7 @@
 - [NYC bus data working Group](https://github.com/Bus-Data-NY)
 
 #### feb 12 — week 1 — orientation, the API
-- pick new meetign time (not Fridays)
+- pick new meeting time (not Fridays)
 - the NYCbuswatcher app
 - the NYCbuswatcher repo
 - the BusTime APIs — query and response
@@ -19,20 +19,29 @@
 - assignment A: 1 page of goals and objectives, what do we want to produce by end of semester? year? think of a question you want to research in addition to technical skills
 - assignment B: register at MTA for a BusTime API key, and subscribe to the Google Groups for MTA developers
  
-### feb 19 — week 2 — working with Transit Center data
-- review essential tools (NYC Bus working group GTFS importer + mta-bus-archive archive retreiver)
-- go over setup of development environment for students
-- assignment: install postgres, install [mta-bus-archive](https://github.com/Bus-Data-NYC/mta-bus-archive), retrieve one or more days of data and explore. does it contain the occupancy and passenger count fields for each observation?
+### feb 19 — week 2
+- review goals and objectives
+- 1 tool/data set in depth 
+    — ? working with Transit Center data
+        - review essential tools (NYC Bus working group GTFS importer + mta-bus-archive archive retreiver)
+        - go over setup of development environment for students
+        - assignment: install postgres, install [mta-bus-archive](https://github.com/Bus-Data-NYC/mta-bus-archive), retrieve one or more days of data and explore. does it contain the occupancy and passenger count fields for each observation?
 
-### feb 26 — week 3 — mapping bus locations
+### feb 26 — week 3
+- review draft proposal
+    - 1 tool/data set in depth 
+        — ? mapping bus locations with GatsbyJS + Mapbox
 
 
 ### mar 5 — week 4 — 
+- final review of project proposals DUE TODAY
+ 
 
-### mar 12 — week 5 — exploring occupancy reports and passenger counts
+### mar 12 — week 5 — 
+- exploring occupancy reports and passenger counts
 - Anthony assignment: pick up development of passenger count parsing and restart db (commit #34c68a649f88c50656f80920397009deda4e0e4d development)
 
-### mar 19 — Anthony Vacation
+### mar 19 — ANTHONY VACATION
 
 ### mar 26 — week 6 — 
 - mid-term milestone: some external review by CT faculty
@@ -40,11 +49,14 @@
 ### apr 2 — week 7 — 
 ### apr 9 — week 8 — 
 ### apr 16 — week 9 — 
-### apr 23 — week 10 — 
-### apr 30 — week 11 — 
-### may 7 — week 12 — 
-### may 14 — week 13 — 
+### apr 23 — WELLNESS DAY 
+### apr 30 — week 10 — 
+### may 7 — week 11 — 
+### may 14 — week 12 — 
 - final milestone: some external review by CT faculty
+- may 17 final report due
+### may 21 - week 13 -
+- possible post-deadline wrapup session
 
 ### fall 2021 planning
 - parking lot
@@ -57,6 +69,7 @@ Can draw on these for our project steps as we have time/interest/relevance.
     - add ability to (batch) re-process archived JSON files through parser, db_dump
 
 - #### BIG
+    - rebuild entire front end as a Gatsby app (using the [gatsby-starter-mapbox](https://github.com/anthonymobile/gatsby-starter-mapbox) and [gatsby-start-mapbox-examples](https://github.com/astridx/gatsby-starter-mapbox-examples) templates)
     - finish API
         - bulk query API for all buses in the system during {time period}
             - requires a datetime range in in ISO 8601 like `/trips&start=2020-08-11T14:42:00+00:00&end=2020-08-11T15:12:00+00:00` per [urschrei](https://twitter.com/urschrei/status/1309473665789165569)
