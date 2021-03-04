@@ -32,14 +32,21 @@
 - assignment: setting up development environment
     - database 
         - install Docker and postgis docker stack (https://hub.docker.com/r/kartoza/postgis/)
-            - make a copy of `https://github.com/kartoza/docker-postgis/blob/develop/docker-compose.yml`
+            - make a copy of `https://github.com/anthonymobile/nycbuswatcher/blob/development/spec/docker-compose.yml`
                 - change `POSTGRES_DB=buses` and `POSTGRES_DBNAME=buses`
             - start the stack with `docker-compose up -d `
             - test it
                 - if you have a postgres CLI client, connect with `psql -h localhost buses`
                 - else install a postgres client (Mac: [Postgres.app](https://postgresapp.com/))
                 - note if you have another database server running like mysql on port 5432 this will conflict (usually the stack wont start, so shut the other service down ior change the port in the `docker-compose.yml`)
-    - [Bus Data Working Group tools](https://github.com/Bus-Data-NYC)
+    - code
+        - you will probably want to setup a python virtual environment (i use anaconda)
+            - install the right version of Anaconda and then
+            ```conda create --name buses python=3 pip``` this creates a new conda environment named `buses` with a python 3 interpreter and pre-installs the `pip` module (which is itself an installer!)
+            - let it do its thing, then
+            ```conda activate buses```
+            -then `make install` per the instructions
+            
         - install the [mta-bus-archive](https://github.com/Bus-Data-NYC/mta-bus-archive) retrieval tool
         ```git clone https://github.com/Bus-Data-NYC/mta-bus-archive.git```
             - i only just realized we can also use this for real-time data!
