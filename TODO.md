@@ -27,11 +27,12 @@
 
 ### mar 5 — week 4 — 
 
-- final review of project proposals DUE TODAY
-- welcome to Slack
-- assignment: setting up development environment
-    - database 
-        - install Docker and postgis docker stack (https://hub.docker.com/r/kartoza/postgis/)
+1. final review of project proposals DUE TODAY
+2. welcome to Slack
+3. assignment: setting up development environment
+    1.  database
+        - easiest = download the Postgres.app for OSX (https://postgresapp.com/) 
+        - harder but more cross platform = install Docker and postgis docker stack (https://hub.docker.com/r/kartoza/postgis/)
             - make a copy of `https://github.com/anthonymobile/nycbuswatcher/blob/development/spec/docker-compose.yml`
                 - change `POSTGRES_DB=buses` and `POSTGRES_DBNAME=buses`
             - start the stack with `docker-compose up -d `
@@ -39,15 +40,16 @@
                 - if you have a postgres CLI client, connect with `psql -h localhost buses`
                 - else install a postgres client (Mac: [Postgres.app](https://postgresapp.com/))
                 - note if you have another database server running like mysql on port 5432 this will conflict (usually the stack wont start, so shut the other service down ior change the port in the `docker-compose.yml`)
-    - code
-        - you will probably want to setup a python virtual environment (i use anaconda)
+        - final option = install it however you want, but make sure you have a user named `docker` with password `docker` and a database called `buses`
+    2. code
+        1. you will probably want to setup a python virtual environment (i use anaconda)
             - install the right version of Anaconda and then
             ```conda create --name buses python=3 pip``` this creates a new conda environment named `buses` with a python 3 interpreter and pre-installs the `pip` module (which is itself an installer!)
             - let it do its thing, then
             ```conda activate buses```
             -then `make install` per the instructions
             
-        - install the [mta-bus-archive](https://github.com/Bus-Data-NYC/mta-bus-archive) retrieval tool
+        2. install the [mta-bus-archive](https://github.com/Bus-Data-NYC/mta-bus-archive) retrieval tool
         ```git clone https://github.com/Bus-Data-NYC/mta-bus-archive.git```
             - i only just realized we can also use this for real-time data!
             - if you are using the docker container above, use these values for  
@@ -60,7 +62,7 @@
                 (you may need to use the `export PGDATABASE=buses` shell command )
             - grab one or more day's worth of data
                 - `make download DATE=2020-12-11` (my birthday!)
-        - on your own
+        3. on your own
             - install Juypter notebook and pandas
             - see if you can get a connection from the python notebook in Juypter to the database to retrieve some data
                 - literal (https://blog.panoply.io/connecting-jupyter-notebook-with-postgresql-for-python-data-analysis)
