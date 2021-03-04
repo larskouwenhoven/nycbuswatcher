@@ -29,47 +29,10 @@
 
 1. final review of project proposals DUE TODAY
 2. welcome to Slack
-3. assignment: setting up development environment
-    1.  database
-        - easiest = download the Postgres.app for OSX (https://postgresapp.com/) 
-        - harder but more cross platform = install Docker and postgis docker stack (https://hub.docker.com/r/kartoza/postgis/)
-            - make a copy of `https://github.com/anthonymobile/nycbuswatcher/blob/development/spec/docker-compose.yml`
-                - change `POSTGRES_DB=buses` and `POSTGRES_DBNAME=buses`
-            - start the stack with `docker-compose up -d `
-            - test it
-                - if you have a postgres CLI client, connect with `psql -h localhost -U docker -p 25432 buses`
-                - else install a postgres client (Mac: [Postgres.app](https://postgresapp.com/))
-                - note if you have another database server running like mysql on port 5432 this will conflict (usually the stack wont start, so shut the other service down ior change the port in the `docker-compose.yml`)
-        - final option = install it however you want, but make sure you have a user named `docker` with password `docker` and a database called `buses`
-    2. code
-        1. you will probably want to setup a python virtual environment (i use anaconda)
-            - install the right version of Anaconda and thenq
-            ```conda create --name buses python=3 pip``` this creates a new conda environment named `buses` with a python 3 interpreter and pre-installs the `pip` module (which is itself an installer!)
-            - let it do its thing, then
-            ```conda activate buses```
-            -then `make install` per the instructions
-            
-        2. install my fork of the **mta-bus-archive** retrieval tool from [here](https://github.com/anthonymobile/mta-bus-archive.git)
-        ```git clone https://github.com/Bus-Data-NYC/mta-bus-archive.git```
-            - i only just realized we can also use this for real-time data!
-            - if you are using the docker container above, use these values for  
-                ```
-                PGDATABASE=buses
-                PGUSER=docker
-                PGPASSWORD=docker
-                PGHOST=localhost
-                ```
-                (you may need to use the `export PGDATABASE=buses` shell command )
-            - grab one or more day's worth of data
-                - STOP HERE (i think we need to figure out how to make postgres not require a password. login as root user `docker` and execute `alter role docker password null;`)
-                - `make download DATE=2020-12-11` (my birthday!)
-            - open the database and verify its in the table!
-        3. on your own
-            - install Juypter notebook and pandas
-            - see if you can get a connection from the python notebook in Juypter to the database to retrieve some data
-                - literal (https://blog.panoply.io/connecting-jupyter-notebook-with-postgresql-for-python-data-analysis)
-                - more seamless/elegant (https://medium.com/analytics-vidhya/postgresql-integration-with-jupyter-notebook-deb97579a38d)
-            
+3. assignment: setting up development environment + get the data
+    1. come up with a way to grab a month's worth of data According to the [mta-bus-archive](https://github.com/Bus-Data-NYC/mta-bus-archive) tool: "Bus position data for July 2017 forward is archived at `https://s3.amazonaws.com/nycbuspositions`. Archive files follow the pattern `https://s3.amazonaws.com/nycbuspositions/YYYY/MM/YYYY-MM-DD-bus-positions.csv.xz`, e.g. `https://s3.amazonaws.com/nycbuspositions/2017/07/2017-07-14-bus-positions.csv.xz`. i'd suggest writing a script to generate the urls. why not grab a whole year while you are at it...
+    2. the data is in CSVs, so we can load it into pandas. i'd probably concatenate it into one giant file first though
+    3. install Juypter notebook and pandas
 
 
 ### mar 12 — week 5
