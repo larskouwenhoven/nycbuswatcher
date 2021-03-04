@@ -45,8 +45,9 @@
             - i only just realized we can also use this for real-time data!
             - if you are using the docker container above, use these values for  
                 ```
-                PGDATABASE=docker
+                PGDATABASE=buses
                 PGUSER=docker
+                PGPASSWORD=docker
                 PGHOST=localhost
                 ```
                 (you may need to use the `export PGDATABASE=buses` shell command )
