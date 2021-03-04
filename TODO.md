@@ -21,25 +21,49 @@
  
 ### feb 19 — week 2
 - review goals and objectives
-- 1 tool/data set in depth 
-    — ? working with Transit Center data
-        - review essential tools (NYC Bus working group GTFS importer + mta-bus-archive archive retreiver)
-        - go over setup of development environment for students
-        - assignment: install postgres, install [mta-bus-archive](https://github.com/Bus-Data-NYC/mta-bus-archive), retrieve one or more days of data and explore. does it contain the occupancy and passenger count fields for each observation?
 
 ### feb 26 — week 3
 - review draft proposal
-    - 1 tool/data set in depth 
-        — ? mapping bus locations with GatsbyJS + Mapbox
-
 
 ### mar 5 — week 4 — 
+
 - final review of project proposals DUE TODAY
- 
+- welcome to Slack
+- assignment: setting up development environment
+    - database 
+        - install Docker and postgis docker stack (https://hub.docker.com/r/kartoza/postgis/)
+            - make a copy of `https://github.com/kartoza/docker-postgis/blob/develop/docker-compose.yml`
+                - change `POSTGRES_DB=buses` and `POSTGRES_DBNAME=buses`
+            - start the stack with `docker-compose up -d `
+            - test it
+                - if you have a postgres CLI client, connect with `psql -h localhost buses`
+                - else install a postgres client (Mac: [Postgres.app](https://postgresapp.com/))
+                - note if you have another database server running like mysql on port 5432 this will conflict (usually the stack wont start, so shut the other service down ior change the port in the `docker-compose.yml`)
+    - [Bus Data Working Group tools](https://github.com/Bus-Data-NYC)
+        - install the [mta-bus-archive](https://github.com/Bus-Data-NYC/mta-bus-archive) retrieval tool
+        ```git clone https://github.com/Bus-Data-NYC/mta-bus-archive.git```
+            - i only just realized we can also use this for real-time data!
+            - if you are using the docker container above, use these values for  
+                ```
+                PGDATABASE=docker
+                PGUSER=docker
+                PGHOST=localhost
+                ```
+                (you may need to use the `export PGDATABASE=buses` shell command )
+            - grab one or more day's worth of data
+                - `make download DATE=2020-12-11` (my birthday!)
+        - on your own
+            - install Juypter notebook and pandas
+            - see if you can get a connection from the python notebook in Juypter to the database to retrieve some data
+                - literal (https://blog.panoply.io/connecting-jupyter-notebook-with-postgresql-for-python-data-analysis)
+                - more seamless/elegant (https://medium.com/analytics-vidhya/postgresql-integration-with-jupyter-notebook-deb97579a38d)
+            
+
 
 ### mar 12 — week 5 — 
-- exploring occupancy reports and passenger counts
-- Anthony assignment: pick up development of passenger count parsing and restart db (commit #34c68a649f88c50656f80920397009deda4e0e4d development)
+- troubleshooting the toolkit
+- initial data exploration
+- milestone review, what needs doing over next 2 weeks?
 
 ### mar 19 — ANTHONY VACATION
 
