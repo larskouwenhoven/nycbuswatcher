@@ -62,6 +62,7 @@
                 (you may need to use the `export PGDATABASE=buses` shell command )
             - grab one or more day's worth of data
                 - `make download DATE=2020-12-11` (my birthday!)
+            - open the database and verify its in the table!
         3. on your own
             - install Juypter notebook and pandas
             - see if you can get a connection from the python notebook in Juypter to the database to retrieve some data
