@@ -37,19 +37,19 @@
                 - change `POSTGRES_DB=buses` and `POSTGRES_DBNAME=buses`
             - start the stack with `docker-compose up -d `
             - test it
-                - if you have a postgres CLI client, connect with `psql -h localhost buses`
+                - if you have a postgres CLI client, connect with `psql -h localhost -U docker -p 25432 buses`
                 - else install a postgres client (Mac: [Postgres.app](https://postgresapp.com/))
                 - note if you have another database server running like mysql on port 5432 this will conflict (usually the stack wont start, so shut the other service down ior change the port in the `docker-compose.yml`)
         - final option = install it however you want, but make sure you have a user named `docker` with password `docker` and a database called `buses`
     2. code
         1. you will probably want to setup a python virtual environment (i use anaconda)
-            - install the right version of Anaconda and then
+            - install the right version of Anaconda and thenq
             ```conda create --name buses python=3 pip``` this creates a new conda environment named `buses` with a python 3 interpreter and pre-installs the `pip` module (which is itself an installer!)
             - let it do its thing, then
             ```conda activate buses```
             -then `make install` per the instructions
             
-        2. install the [mta-bus-archive](https://github.com/Bus-Data-NYC/mta-bus-archive) retrieval tool
+        2. install my fork of the **mta-bus-archive** retrieval tool from [here](https://github.com/anthonymobile/mta-bus-archive.git)
         ```git clone https://github.com/Bus-Data-NYC/mta-bus-archive.git```
             - i only just realized we can also use this for real-time data!
             - if you are using the docker container above, use these values for  
@@ -61,6 +61,7 @@
                 ```
                 (you may need to use the `export PGDATABASE=buses` shell command )
             - grab one or more day's worth of data
+                - STOP HERE (i think we need to figure out how to make postgres not require a password. login as root user `docker` and execute `alter role docker password null;`)
                 - `make download DATE=2020-12-11` (my birthday!)
             - open the database and verify its in the table!
         3. on your own
@@ -71,26 +72,26 @@
             
 
 
-### mar 12 — week 5 — 
+### mar 12 — week 5
 - troubleshooting the toolkit
 - initial data exploration
 - milestone review, what needs doing over next 2 weeks?
 
 ### mar 19 — ANTHONY VACATION
 
-### mar 26 — week 6 — 
+### mar 26 — week 6
 - mid-term milestone: some external review by CT faculty
 
-### apr 2 — week 7 — 
-### apr 9 — week 8 — 
-### apr 16 — week 9 — 
+### apr 2 — week 7
+### apr 9 — week 8
+### apr 16 — week 9
 ### apr 23 — WELLNESS DAY 
-### apr 30 — week 10 — 
-### may 7 — week 11 — 
-### may 14 — week 12 — 
+### apr 30 — week 10
+### may 7 — week 11
+### may 14 — week 12
 - final milestone: some external review by CT faculty
 - may 17 final report due
-### may 21 - week 13 -
+### may 21 - week 13
 - possible post-deadline wrapup session
 
 ### fall 2021 planning
