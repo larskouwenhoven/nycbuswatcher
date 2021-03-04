@@ -31,8 +31,13 @@
 2. welcome to Slack
 3. assignment: setting up development environment + get the data
     1. come up with a way to grab a month's worth of data According to the [mta-bus-archive](https://github.com/Bus-Data-NYC/mta-bus-archive) tool: "Bus position data for July 2017 forward is archived at `https://s3.amazonaws.com/nycbuspositions`. Archive files follow the pattern `https://s3.amazonaws.com/nycbuspositions/YYYY/MM/YYYY-MM-DD-bus-positions.csv.xz`, e.g. `https://s3.amazonaws.com/nycbuspositions/2017/07/2017-07-14-bus-positions.csv.xz`. i'd suggest writing a script to generate the urls. why not grab a whole year while you are at it...
-    2. the data is in CSVs, so we can load it into pandas. i'd probably concatenate it into one giant file first though
-    3. install Juypter notebook and pandas
+    2. install Juypter notebook and pandas
+    3. aggegrate and then slice the data
+        - the data is in CSVs, so we can load it into pandas. i'd probably concatenate it into one giant file first though
+        - then you want to slice out the routes you care about (Bx2, Bx4, Bx17, and Bx19) and then dump it back to a CSV, or another more structured format
+    4. figure out a solution for sharing the code and data with me
+        - github? dropbox?
+        - or other way of sharing the work (dropbox?)
 
 
 ### mar 12 — week 5
