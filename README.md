@@ -60,13 +60,56 @@ Fetches list of active routes from MTA BusTime OneBusAway API via asynchronous h
 
 if you just want to test out the grabber, you can run `export PYTHON_ENV=development; python grabber.py -l` and it will run once, dump the responses to a pile of files, and quit after throwing a database connection error. (or not, if you did step 3 in "manual" above) 
 
+# database access
+
+talking to a database inside a docker container is a little weird
+
+1. *connect to mysql inside a container* to start a mysql client inside a mysql docker container
+
+    ```
+    docker exec -it nycbuswatcher_db_1 mysql -uroot -p buses
+    [root password=bustime]
+    ```
+    
+2. quick diagnostic query for how many records per day
+
+    ```sql
+       SELECT service_date, COUNT(*) FROM buses GROUP BY service_date;
+    ```
+    
+3. query # of records by date/hour/minute
+
+    ```sql
+       SELECT service_date, date_format(timestamp,'%Y-%m-%d %H-%i'), COUNT(*) \
+       FROM buses GROUP BY service_date, date_format(timestamp,'%Y-%m-%d %H-%i');
+    ```
 
 
 
 
+# master to-do list
+Can draw on these for our project steps as we have time/interest/relevance.
 
+- #### SMALL
+    - add ability to (batch) re-process archived JSON files through parser, db_dump
 
+- #### BIG
+    - rebuild entire front end as a Gatsby app (using the [gatsby-starter-mapbox](https://github.com/anthonymobile/gatsby-starter-mapbox) and [gatsby-start-mapbox-examples](https://github.com/astridx/gatsby-starter-mapbox-examples) templates)
+    - finish API
+        - bulk query API for all buses in the system during {time period}
+            - requires a datetime range in in ISO 8601 like `/trips&start=2020-08-11T14:42:00+00:00&end=2020-08-11T15:12:00+00:00` per [urschrei](https://twitter.com/urschrei/status/1309473665789165569)
+            - use query filter to enforce a maximum interval of 1 hour? (for now)
+            - returns all fields (for now)
+        - keplerized endpoints?
 
-
-
+- #### MEDIUM
+    - additional data scrapers
+        - add parsing for the MonitoredCall portion of API response for each bus (currently discarded)
+        - stop monitoring—[SIRIStopMonitoring](http://bustime.mta.info/wiki/Developers/SIRIStopMonitoring) reports info on individual stops, 1 at a time only.
+        - route geometry from [OneBusAway API](http://bustime.mta.info/wiki/Developers/OneBusAwayRESTfulAPI) (much easier than working with the GTFS) on:
+            - Full information about each stop covered by MTA Bus Time (e.g. the lat/lon coordinates, stop name, list of routes serving that stop)
+            - The stops served by a given route
+            - The physical geometry for a given route (for mapping and geographic calculations) **MTA endpoint appears to be inoperative**
+            - The schedule of trips serving a given stop or route (repeat: schedule, having nothing to do with the real-time data)
+            - The stops or routes near a given location
 
