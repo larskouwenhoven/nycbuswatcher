@@ -169,19 +169,22 @@ def dump_to_db(timestamp, feeds):
         session.commit()
     return num_buses
 
-
+# todo trying to make this work as a generator
 def async_grab_and_store():
 
     start = time.time()
     path_list = get_path_list()
-    feeds = []
+    # feeds = []
 
-    async def grabber(s,a_path,route_id):
-        try:
-            r = await s.get(path=a_path)
-        except ValueError as e :
-            print ('{} from DNS issues'.format(e))
-        feeds.append({route_id:r})
+    async def grabber(s,path_list,route_id):
+            for path_bundle in path_list:
+                for route_id,path in path_bundle.items():#bug does it yield to here—does this loop move/change?  
+                    try:
+                        r = await s.get(path=a_path) # bug did we lost a_path alone the way?
+                    except ValueError as e :
+                        print ('{} from DNS issues'.format(e))      
+                    # feeds.append({route_id:r})
+                    yield {route_id:r} #bug but where does it yield it to?
 
     async def main(path_list):
         from asks.sessions import Session
@@ -191,11 +194,10 @@ def async_grab_and_store():
         else:
             s = Session('http://bustime.mta.info', connections=config.config['http_connections'])
         async with trio.open_nursery() as n:
-            for path_bundle in path_list:
-                for route_id,path in path_bundle.items():
-                    n.start_soon(grabber, s, path, route_id )
+            n.start_soon(grabber, s, path_list, route_id)
 
-    trio.run(main, path_list)
+
+    trio.run(main, path_list) #bug and does this change?
 
 
     timestamp = dump_to_file(feeds)
